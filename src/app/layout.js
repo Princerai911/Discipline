@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navigation from "@/components/Navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,12 +43,7 @@ export default function RootLayout({ children }) {
             <h1 className="text-gradient" style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
               Discipline
             </h1>
-            <nav style={{ display: 'flex', gap: '0.75rem', background: 'var(--card)', padding: '0.75rem 1rem', borderRadius: '999px', border: '1px solid var(--card-border)', flexWrap: 'wrap', justifyContent: 'center', width: '100%', maxWidth: '350px' }}>
-              <a href="/" style={{ color: 'var(--foreground)', textDecoration: 'none', fontWeight: 600, fontSize: '0.85rem' }}>Today</a>
-              <a href="/goals" style={{ color: 'var(--muted-foreground)', textDecoration: 'none', fontWeight: 500, fontSize: '0.85rem' }}>Goals</a>
-              <a href="/stats" style={{ color: 'var(--muted-foreground)', textDecoration: 'none', fontWeight: 500, fontSize: '0.85rem' }}>Stats</a>
-              <a href="/notes" style={{ color: 'var(--muted-foreground)', textDecoration: 'none', fontWeight: 500, fontSize: '0.85rem' }}>Notes</a>
-            </nav>
+            <Navigation />
           </header>
           {children}
         </div>

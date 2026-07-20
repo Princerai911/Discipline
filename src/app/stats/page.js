@@ -229,6 +229,52 @@ export default function StatsPage() {
           </div>
         )}
       </div>
+
+      {/* Monthly Output Bar Chart */}
+      {!loading && (
+        <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '4rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 700 }}>Monthly Output</h3>
+          
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '150px', width: '100%', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+            {(() => {
+              // Get actual days of the month (skip the empty padding slots)
+              const validDays = calendarDays.filter(d => d !== null);
+              
+              // Find the maximum completions in this specific month for scaling
+              const maxCompletions = Math.max(...validDays.map(d => completions[d.dateStr] || 0), 1); // min 1 to avoid divide by zero
+
+              return validDays.map((item) => {
+                const count = completions[item.dateStr] || 0;
+                const heightPercentage = count > 0 ? (count / maxCompletions) * 100 : 2; // 2% minimum height so it's visible
+                const isToday = new Date().toISOString().split('T')[0] === item.dateStr;
+
+                return (
+                  <div key={`chart-${item.dateStr}`} style={{ flex: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '15px' }}>
+                    <div 
+                      title={`${item.dateStr}: ${count} tasks`}
+                      style={{ 
+                        width: '100%', 
+                        height: `${heightPercentage}%`, 
+                        background: count > 0 ? (isToday ? 'var(--primary)' : 'var(--primary-glow)') : 'rgba(255,255,255,0.05)',
+                        borderRadius: '4px 4px 0 0',
+                        transition: 'height 0.3s ease, background 0.3s ease',
+                        boxShadow: count > 0 && isToday ? '0 0 10px var(--primary-glow)' : 'none'
+                      }}
+                    ></div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+          
+          {/* Chart X-Axis Labels */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted-foreground)', fontSize: '0.75rem', fontWeight: 600, marginTop: '0.5rem' }}>
+            <span>1st</span>
+            <span>15th</span>
+            <span>{daysInMonth}th</span>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
