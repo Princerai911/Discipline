@@ -9,21 +9,25 @@ export default function StatsPage() {
   const [longestStreak, setLongestStreak] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Calendar State
+  const [currentDate, setCurrentDate] = useState(new Date());
+
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [currentDate]);
 
   async function fetchStats() {
     setLoading(true);
     
-    // Fetch all completions for accurate streak calculation
+    // Fetch completions to accurately calculate streak and heat
     const { data } = await supabase
       .from('task_completions')
       .select('date')
+      .eq('status', 'completed') // ONLY completed tasks count!
       .order('date', { ascending: true });
 
     if (data) {
-      // Group by date
+      // Group by date (how many tasks completed per day)
       const counts = data.reduce((acc, curr) => {
         acc[curr.date] = (acc[curr.date] || 0) + 1;
         return acc;
@@ -62,7 +66,6 @@ export default function StatsPage() {
         // Determine current streak
         const lastActiveDate = dates[dates.length - 1];
         if (lastActiveDate === localTodayStr || lastActiveDate === localYesterdayStr) {
-          // Calculate backwards from last active date
           current = 1;
           for (let i = dates.length - 1; i > 0; i--) {
             const curr = new Date(dates[i]);
@@ -83,24 +86,43 @@ export default function StatsPage() {
     setLoading(false);
   }
 
-  const heatmapDays = [];
-  const today = new Date();
-  for (let i = 27; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const offset = d.getTimezoneOffset();
-    const localDate = new Date(d.getTime() - (offset*60*1000)).toISOString().split('T')[0];
-    
-    heatmapDays.push({
-      dateStr: localDate,
-      dayOfWeek: d.toLocaleDateString('en-US', { weekday: 'short' })
-    });
+  // --- Calendar Logic ---
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // Get the first day of the month (0 = Sunday, 1 = Monday)
+  const firstDay = new Date(year, month, 1).getDay();
+  // Get number of days in this month
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Create an array representing the calendar grid slots
+  const calendarDays = [];
+  
+  // Empty slots before the 1st of the month
+  for (let i = 0; i < firstDay; i++) {
+    calendarDays.push(null);
+  }
+  
+  // The actual days of the month
+  for (let i = 1; i <= daysInMonth; i++) {
+    // Construct local YYYY-MM-DD string safely avoiding timezone shifts
+    const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    calendarDays.push({ dayNumber: i, dateStr: dStr });
   }
 
-  const dayHeaders = heatmapDays.slice(0, 7).map(d => d.dayOfWeek);
+  const prevMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
+  
+  const nextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
 
   const getOpacityForCount = (count) => {
-    if (!count || count === 0) return 0.1; 
+    if (!count || count === 0) return 0; 
     if (count === 1) return 0.4;
     if (count <= 3) return 0.7;
     return 1; 
@@ -123,7 +145,7 @@ export default function StatsPage() {
             {currentStreak}
           </p>
           <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', margin: '0.5rem 0 0 0', fontWeight: 600 }}>
-            Current Streak (Days)
+            Current Streak
           </p>
         </div>
 
@@ -137,32 +159,73 @@ export default function StatsPage() {
         </div>
       </div>
 
-      <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-        <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.1rem', fontWeight: 600 }}>Last 4 Weeks</h3>
+      {/* Monthly Calendar View */}
+      <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
+        
+        {/* Calendar Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <button onClick={prevMonth} style={{ background: 'transparent', border: '1px solid var(--card-border)', color: 'var(--foreground)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>
+            &larr;
+          </button>
+          <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, textAlign: 'center' }}>
+            {monthNames[month]} {year}
+          </h3>
+          <button onClick={nextMonth} style={{ background: 'transparent', border: '1px solid var(--card-border)', color: 'var(--foreground)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>
+            &rarr;
+          </button>
+        </div>
         
         {loading ? (
-          <p style={{ color: 'var(--muted-foreground)' }}>Loading data...</p>
+          <p style={{ color: 'var(--muted-foreground)', textAlign: 'center', padding: '2rem 0' }}>Analyzing history...</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem' }}>
-            {dayHeaders.map((day, index) => (
-              <div key={index} style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--muted-foreground)', fontWeight: 600, marginBottom: '0.5rem' }}>{day}</div>
-            ))}
-            {heatmapDays.map((item) => {
-              const count = completions[item.dateStr] || 0;
-              const opacity = getOpacityForCount(count);
-              return (
-                <div 
-                  key={item.dateStr}
-                  title={`${item.dateStr}: ${count} tasks completed`}
-                  style={{
-                    aspectRatio: '1', background: `rgba(139, 92, 246, ${opacity})`, borderRadius: '4px',
-                    border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: count > 3 ? '0 0 8px var(--primary-glow)' : 'none', transition: 'all 0.2s', cursor: 'pointer'
-                  }}
-                >
+          <div>
+            {/* Days of week header */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              {dayHeaders.map((day, index) => (
+                <div key={index} style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted-foreground)', fontWeight: 700 }}>
+                  {day}
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Calendar Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem' }}>
+              {calendarDays.map((item, index) => {
+                if (!item) {
+                  return <div key={`empty-${index}`} style={{ aspectRatio: '1' }}></div>;
+                }
+                
+                const count = completions[item.dateStr] || 0;
+                const opacity = getOpacityForCount(count);
+                const hasActivity = count > 0;
+                
+                // Highlight today
+                const isToday = new Date().toISOString().split('T')[0] === item.dateStr;
+
+                return (
+                  <div 
+                    key={item.dateStr}
+                    title={`${item.dateStr}: ${count} tasks completed`}
+                    style={{
+                      aspectRatio: '1', 
+                      background: hasActivity ? `rgba(139, 92, 246, ${opacity})` : 'rgba(255, 255, 255, 0.02)', 
+                      borderRadius: '8px',
+                      border: isToday ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      boxShadow: count > 3 ? '0 0 12px var(--primary-glow)' : 'none', 
+                      transition: 'all 0.2s',
+                      color: hasActivity ? 'white' : 'var(--muted-foreground)',
+                      fontWeight: isToday ? 800 : (hasActivity ? 700 : 500),
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    {item.dayNumber}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
