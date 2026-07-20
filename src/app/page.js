@@ -180,6 +180,13 @@ export default function Dashboard() {
     return `${hours}:${m} ${ampm}`;
   }
 
+  function getAlarmIntent(title, timeStr) {
+    if (!timeStr) return '#';
+    const [h, m] = timeStr.split(':');
+    const message = encodeURIComponent(`Discipline: ${title}`);
+    return `intent://#Intent;action=android.intent.action.SET_ALARM;S.android.intent.extra.alarm.MESSAGE=${message};i.android.intent.extra.alarm.HOUR=${h};i.android.intent.extra.alarm.MINUTES=${m};B.android.intent.extra.alarm.SKIP_UI=false;scheme=android;end`;
+  }
+
   // Progress calculations
   const totalCount = tasks.length;
   const completedCount = tasks.filter(t => t.completion_status === 'completed').length;
@@ -355,15 +362,28 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 {task.completion_status === 'pending' && (!focusTask || focusTask.id !== task.id) && (
-                  <button 
-                    onClick={() => startFocus(task)}
-                    className="premium-button"
-                    style={{ padding: '0.6rem 1rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', border: 'none' }}
-                  >
-                    FOCUS
-                  </button>
+                  <>
+                    <a 
+                      href={getAlarmIntent(task.title, task.scheduled_time)}
+                      title="Set Phone Alarm"
+                      style={{ 
+                        background: 'rgba(255,255,255,0.05)', border: '1px solid var(--card-border)', 
+                        padding: '0.6rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        textDecoration: 'none', color: 'inherit'
+                      }}
+                    >
+                      <span style={{ fontSize: '1.1rem' }}>⏰</span>
+                    </a>
+                    <button 
+                      onClick={() => startFocus(task)}
+                      className="premium-button"
+                      style={{ padding: '0.6rem 1rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', border: 'none' }}
+                    >
+                      FOCUS
+                    </button>
+                  </>
                 )}
               </div>
             </div>
