@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import InstallButton from '@/components/InstallButton';
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
@@ -188,6 +189,7 @@ export default function Dashboard() {
 
   return (
     <main className="animate-enter">
+      <InstallButton />
       
       {/* Dynamic Focus Engine */}
       {focusTask && (
