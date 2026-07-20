@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
 export default function OfflineBanner() {
   const [isOnline, setIsOnline] = useState(true);
@@ -9,7 +10,10 @@ export default function OfflineBanner() {
     // Set initial state
     setIsOnline(navigator.onLine);
 
-    const handleOnline = () => setIsOnline(true);
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success('Connection Restored!');
+    };
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);

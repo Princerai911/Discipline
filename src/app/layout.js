@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import OfflineBanner from "@/components/OfflineBanner";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +49,7 @@ export default function RootLayout({ children }) {
           </header>
           {children}
         </div>
+        <Toaster position="top-center" toastOptions={{ style: { background: 'var(--card)', color: 'var(--foreground)', border: '1px solid var(--card-border)', fontWeight: 600 } }} />
         <OfflineBanner />
       </body>
     </html>

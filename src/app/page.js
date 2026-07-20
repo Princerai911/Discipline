@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import InstallButton from '@/components/InstallButton';
+import toast from 'react-hot-toast';
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
@@ -137,6 +138,7 @@ export default function Dashboard() {
       
       // Update UI
       setTasks(tasks.map(t => t.id === focusTask.id ? { ...t, completion_status: 'quit' } : t));
+      toast.error('Task Failed. Discipline Broken.');
       setFocusTask(null);
     }
   };
@@ -155,6 +157,7 @@ export default function Dashboard() {
     // Re-calculate streak optimistically if it was 0 and this is the first task done today
     if (currentStreak === 0) setCurrentStreak(1);
     
+    toast.success('Objective Completed. Good work.');
     setFocusTask(null);
     setTimerFinished(false);
   };

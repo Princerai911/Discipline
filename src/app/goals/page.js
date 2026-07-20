@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import toast from 'react-hot-toast';
 
 export default function GoalsPage() {
   const [goals, setGoals] = useState([]);
@@ -51,20 +52,24 @@ export default function GoalsPage() {
       setNewGoalTitle('');
       setNewGoalDescription('');
       setIsAddingGoal(false);
+      toast.success('Objective Created');
     }
   }
 
   async function deleteGoal(id) {
     if (confirm("Are you sure you want to delete this goal and all its tasks?")) {
       const { error } = await supabase.from('goals').delete().eq('id', id);
-      if (!error) setGoals(goals.filter(g => g.id !== id));
+      if (!error) {
+        setGoals(goals.filter(g => g.id !== id));
+        toast.success('Objective Deleted');
+      }
     }
   }
 
   // Task Methods
   async function addTask(goalId) {
     if (!newTaskTitle.trim() || !newTaskStartTime || !newTaskEndTime) {
-      alert('Please fill out Title, Start Time, and End Time.');
+      toast.error('Please fill out Title, Start Time, and End Time.');
       return;
     }
 
@@ -89,6 +94,7 @@ export default function GoalsPage() {
       setNewTaskTitle('');
       setNewTaskStartTime('');
       setNewTaskEndTime('');
+      toast.success('Habit Added');
     }
   }
 
@@ -110,6 +116,7 @@ export default function GoalsPage() {
         return g;
       }));
       setEditingTask(null);
+      toast.success('Habit Updated');
     }
   }
 
@@ -121,6 +128,7 @@ export default function GoalsPage() {
           if (g.id === goalId) return { ...g, tasks: g.tasks.filter(t => t.id !== taskId) };
           return g;
         }));
+        toast.success('Habit Deleted');
       }
     }
   }
