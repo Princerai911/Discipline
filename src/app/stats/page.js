@@ -121,11 +121,16 @@ export default function StatsPage() {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
-  const getOpacityForCount = (count) => {
-    if (!count || count === 0) return 0; 
-    if (count === 1) return 0.4;
-    if (count <= 3) return 0.7;
-    return 1; 
+  // We calculate maxCompletions globally for the month so the calendar can use it for percentages
+  const validDaysForMax = calendarDays.filter(d => d !== null);
+  const maxCompletions = Math.max(...validDaysForMax.map(d => completions[d.dateStr] || 0), 1);
+
+  const getColorForPercentage = (count, max) => {
+    if (!count || count === 0) return 'rgba(255, 255, 255, 0.02)'; 
+    const percentage = count / max;
+    if (percentage >= 0.8) return '#10b981'; // Emerald Green
+    if (percentage >= 0.5) return '#8b5cf6'; // Purple
+    return '#ef4444'; // Red
   };
 
   return (
@@ -196,7 +201,7 @@ export default function StatsPage() {
                 }
                 
                 const count = completions[item.dateStr] || 0;
-                const opacity = getOpacityForCount(count);
+                const bgColor = getColorForPercentage(count, maxCompletions);
                 const hasActivity = count > 0;
                 
                 // Highlight today
@@ -208,13 +213,13 @@ export default function StatsPage() {
                     title={`${item.dateStr}: ${count} tasks completed`}
                     style={{
                       aspectRatio: '1', 
-                      background: hasActivity ? `rgba(139, 92, 246, ${opacity})` : 'rgba(255, 255, 255, 0.02)', 
+                      background: bgColor, 
                       borderRadius: '8px',
-                      border: isToday ? '2px solid var(--primary)' : '1px solid rgba(255,255,255,0.05)', 
+                      border: isToday ? '2px solid white' : '1px solid rgba(255,255,255,0.05)', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      boxShadow: count > 3 ? '0 0 12px var(--primary-glow)' : 'none', 
+                      boxShadow: hasActivity ? `0 0 12px ${bgColor}40` : 'none', 
                       transition: 'all 0.2s',
                       color: hasActivity ? 'white' : 'var(--muted-foreground)',
                       fontWeight: isToday ? 800 : (hasActivity ? 700 : 500),
@@ -237,15 +242,12 @@ export default function StatsPage() {
           
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '150px', width: '100%', overflowX: 'auto', paddingBottom: '0.5rem' }}>
             {(() => {
-              // Get actual days of the month (skip the empty padding slots)
               const validDays = calendarDays.filter(d => d !== null);
-              
-              // Find the maximum completions in this specific month for scaling
-              const maxCompletions = Math.max(...validDays.map(d => completions[d.dateStr] || 0), 1); // min 1 to avoid divide by zero
 
               return validDays.map((item) => {
                 const count = completions[item.dateStr] || 0;
                 const heightPercentage = count > 0 ? (count / maxCompletions) * 100 : 2; // 2% minimum height so it's visible
+                const bgColor = getColorForPercentage(count, maxCompletions);
                 const isToday = new Date().toISOString().split('T')[0] === item.dateStr;
 
                 return (
@@ -255,10 +257,10 @@ export default function StatsPage() {
                       style={{ 
                         width: '100%', 
                         height: `${heightPercentage}%`, 
-                        background: count > 0 ? (isToday ? 'var(--primary)' : 'var(--primary-glow)') : 'rgba(255,255,255,0.05)',
+                        background: count > 0 ? bgColor : 'rgba(255,255,255,0.05)',
                         borderRadius: '4px 4px 0 0',
                         transition: 'height 0.3s ease, background 0.3s ease',
-                        boxShadow: count > 0 && isToday ? '0 0 10px var(--primary-glow)' : 'none'
+                        boxShadow: count > 0 && isToday ? `0 0 10px ${bgColor}60` : 'none'
                       }}
                     ></div>
                   </div>
