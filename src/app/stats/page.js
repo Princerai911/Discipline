@@ -8,6 +8,7 @@ export default function StatsPage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState(null);
 
   // Calendar State
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -19,6 +20,20 @@ export default function StatsPage() {
   async function fetchStats() {
     setLoading(true);
     
+    // Fetch start date (first goal created)
+    const { data: firstGoal } = await supabase
+      .from('goals')
+      .select('created_at')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+      
+    if (firstGoal && firstGoal.created_at) {
+      const offset = new Date(firstGoal.created_at).getTimezoneOffset();
+      const localStartStr = new Date(new Date(firstGoal.created_at).getTime() - (offset*60*1000)).toISOString().split('T')[0];
+      setStartDate(localStartStr);
+    }
+
     // Fetch completions to accurately calculate streak and heat
     const { data } = await supabase
       .from('task_completions')
@@ -125,8 +140,18 @@ export default function StatsPage() {
   const validDaysForMax = calendarDays.filter(d => d !== null);
   const maxCompletions = Math.max(...validDaysForMax.map(d => completions[d.dateStr] || 0), 1);
 
-  const getColorForPercentage = (count, max) => {
-    if (!count || count === 0) return 'rgba(255, 255, 255, 0.02)'; 
+  const getColorForPercentage = (count, max, dateStr) => {
+    const today = new Date();
+    const offset = today.getTimezoneOffset();
+    const localTodayStr = new Date(today.getTime() - (offset*60*1000)).toISOString().split('T')[0];
+
+    const isPastOrToday = dateStr <= localTodayStr;
+    const isAfterStart = startDate && dateStr >= startDate;
+
+    if (!count || count === 0) {
+      if (isPastOrToday && isAfterStart) return '#ef4444'; // Red for failed days
+      return 'rgba(255, 255, 255, 0.02)'; 
+    }
     const percentage = count / max;
     if (percentage >= 0.8) return '#10b981'; // Emerald Green
     if (percentage >= 0.5) return '#8b5cf6'; // Purple
@@ -201,11 +226,14 @@ export default function StatsPage() {
                 }
                 
                 const count = completions[item.dateStr] || 0;
-                const bgColor = getColorForPercentage(count, maxCompletions);
-                const hasActivity = count > 0;
+                const bgColor = getColorForPercentage(count, maxCompletions, item.dateStr);
+                const isFailed = bgColor === '#ef4444';
+                const hasActivity = count > 0 || isFailed;
                 
                 // Highlight today
-                const isToday = new Date().toISOString().split('T')[0] === item.dateStr;
+                const todayLocal = new Date();
+                const offset = todayLocal.getTimezoneOffset();
+                const isToday = new Date(todayLocal.getTime() - (offset*60*1000)).toISOString().split('T')[0] === item.dateStr;
 
                 return (
                   <div 
@@ -246,8 +274,9 @@ export default function StatsPage() {
 
               return validDays.map((item) => {
                 const count = completions[item.dateStr] || 0;
-                const heightPercentage = count > 0 ? (count / maxCompletions) * 100 : 2; // 2% minimum height so it's visible
-                const bgColor = getColorForPercentage(count, maxCompletions);
+                const bgColor = getColorForPercentage(count, maxCompletions, item.dateStr);
+                const isFailed = bgColor === '#ef4444' && count === 0;
+                const heightPercentage = count > 0 ? (count / maxCompletions) * 100 : (isFailed ? 5 : 2); // Show a slight bump for failed days
                 const isToday = new Date().toISOString().split('T')[0] === item.dateStr;
 
                 return (
@@ -257,7 +286,7 @@ export default function StatsPage() {
                       style={{ 
                         width: '100%', 
                         height: `${heightPercentage}%`, 
-                        background: count > 0 ? bgColor : 'rgba(255,255,255,0.05)',
+                        background: (count > 0 || isFailed) ? bgColor : 'rgba(255,255,255,0.05)',
                         borderRadius: '4px 4px 0 0',
                         transition: 'height 0.3s ease, background 0.3s ease',
                         boxShadow: count > 0 && isToday ? `0 0 10px ${bgColor}60` : 'none'
