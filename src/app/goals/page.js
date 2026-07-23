@@ -143,13 +143,6 @@ export default function GoalsPage() {
     return `${hours}:${m} ${ampm}`;
   }
 
-  function getAlarmIntent(title, timeStr) {
-    if (!timeStr) return '#';
-    const [h, m] = timeStr.split(':');
-    const message = encodeURIComponent(`Discipline: ${title}`);
-    return `intent://#Intent;action=android.intent.action.SET_ALARM;S.android.intent.extra.alarm.MESSAGE=${message};i.android.intent.extra.alarm.HOUR=${h};i.android.intent.extra.alarm.MINUTES=${m};B.android.intent.extra.alarm.SKIP_UI=false;scheme=android;end`;
-  }
-
   return (
     <main className="animate-enter">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -254,14 +247,7 @@ export default function GoalsPage() {
                               {formatTime(task.scheduled_time)} - {formatTime(task.end_time)}
                             </p>
                           </div>
-                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <a 
-                              href={getAlarmIntent(task.title, task.scheduled_time)}
-                              title="Set Phone Alarm"
-                              style={{ textDecoration: 'none', padding: '0 0.5rem', cursor: 'pointer' }}
-                            >
-                              ⏰
-                            </a>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <button onClick={() => setEditingTask(task)} style={{ background: 'transparent', border: 'none', color: 'var(--muted-foreground)', cursor: 'pointer' }}>Edit</button>
                             <button onClick={() => deleteTask(task.id, goal.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>×</button>
                           </div>
