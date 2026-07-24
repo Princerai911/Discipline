@@ -19,7 +19,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
-    return () => clearInterval(timerRef.current);
+    
+    // Auto-refresh at midnight
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const msUntilMidnight = tomorrow - now;
+    const midnightTimeout = setTimeout(() => {
+      window.location.reload();
+    }, msUntilMidnight);
+
+    return () => {
+      clearInterval(timerRef.current);
+      clearTimeout(midnightTimeout);
+    };
   }, []);
 
   // Timer logic
@@ -186,6 +198,14 @@ export default function Dashboard() {
   const quitCount = tasks.filter(t => t.completion_status === 'quit').length;
   const progress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
 
+  let progressColor = 'var(--primary)';
+  if (totalCount > 0) {
+    if (progress >= 80) progressColor = '#10b981'; // Green
+    else if (progress >= 50) progressColor = '#8b5cf6'; // Purple
+    else if (quitCount > 0) progressColor = '#ef4444'; // Red if broken discipline
+    else progressColor = 'var(--primary)'; // Default
+  }
+
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
@@ -267,16 +287,16 @@ export default function Dashboard() {
               <circle cx="30" cy="30" r="26" stroke="var(--card-border)" strokeWidth="6" fill="none" />
               <circle 
                 cx="30" cy="30" r="26" 
-                stroke="var(--primary)" 
+                stroke={progressColor} 
                 strokeWidth="6" fill="none" 
                 strokeDasharray={2 * Math.PI * 26}
                 strokeDashoffset={(2 * Math.PI * 26) - (progress / 100) * (2 * Math.PI * 26)}
-                style={{ transition: 'stroke-dashoffset 1s ease' }}
+                style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.3s ease' }}
                 strokeLinecap="round"
               />
             </svg>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>{progress}%</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800, color: progressColor }}>{progress}%</span>
             </div>
           </div>
         </div>
