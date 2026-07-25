@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [timerFinished, setTimerFinished] = useState(false);
   const timerRef = useRef(null);
   const lastFetchDateRef = useRef(null);
+  const targetEndTimeRef = useRef(null);
 
   useEffect(() => {
     const todayLocal = new Date();
@@ -56,21 +57,25 @@ export default function Dashboard() {
 
   // Timer logic
   useEffect(() => {
-    if (timerActive && timeLeft > 0) {
+    if (timerActive) {
       timerRef.current = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
+        const remaining = Math.round((targetEndTimeRef.current - Date.now()) / 1000);
+        if (remaining <= 0) {
+          setTimeLeft(0);
+          setTimerActive(false);
+          setTimerFinished(true);
+          clearInterval(timerRef.current);
+          // Play a sound
+          if (typeof window !== 'undefined') {
+            new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(e => console.log(e));
+          }
+        } else {
+          setTimeLeft(remaining);
+        }
       }, 1000);
-    } else if (timeLeft === 0 && timerActive) {
-      clearInterval(timerRef.current);
-      setTimerActive(false);
-      setTimerFinished(true);
-      // Play a sound
-      if (typeof window !== 'undefined') {
-        new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(e => console.log(e));
-      }
     }
     return () => clearInterval(timerRef.current);
-  }, [timerActive, timeLeft]);
+  }, [timerActive]);
 
   async function fetchData() {
     setLoading(true);
@@ -151,6 +156,7 @@ export default function Dashboard() {
     setFocusTask(task);
     const seconds = calculateDurationSeconds(task.scheduled_time, task.end_time);
     setTimeLeft(seconds);
+    targetEndTimeRef.current = Date.now() + (seconds * 1000);
     setTimerActive(true);
     setTimerFinished(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -268,7 +274,14 @@ export default function Dashboard() {
             ) : (
               <>
                 <button 
-                  onClick={() => setTimerActive(!timerActive)}
+                  onClick={() => {
+                    if (timerActive) {
+                      setTimerActive(false);
+                    } else {
+                      targetEndTimeRef.current = Date.now() + (timeLeft * 1000);
+                      setTimerActive(true);
+                    }
+                  }}
                   className="premium-button"
                   style={{ flex: 1, padding: '1rem', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 800 }}
                 >
