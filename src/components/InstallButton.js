@@ -45,7 +45,7 @@ export default function InstallButton() {
   // Only render if we have a prompt available (e.g. Android Chrome)
   // On iOS, this will be null because Apple doesn't support the event.
   if (!deferredPrompt) return (
-    <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '1rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+    <div className="mobile-only" style={{ textAlign: 'center', marginBottom: '2rem', padding: '1rem', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
       <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', margin: 0 }}>
         📱 Using iOS? Tap <strong>Share</strong> &rarr; <strong>Add to Home Screen</strong> to install.
       </p>
@@ -53,7 +53,7 @@ export default function InstallButton() {
   );
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+    <div className="mobile-only" style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
       <button 
         onClick={handleInstallClick}
         className="premium-button"

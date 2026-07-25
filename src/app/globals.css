@@ -123,3 +123,10 @@ body {
 .premium-button:active {
   transform: translateY(0);
 }
+
+/* Visibility Utilities */
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
