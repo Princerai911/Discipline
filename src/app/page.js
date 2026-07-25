@@ -16,11 +16,16 @@ export default function Dashboard() {
   const [timerActive, setTimerActive] = useState(false);
   const [timerFinished, setTimerFinished] = useState(false);
   const timerRef = useRef(null);
+  const lastFetchDateRef = useRef(null);
 
   useEffect(() => {
+    const todayLocal = new Date();
+    const offset = todayLocal.getTimezoneOffset();
+    lastFetchDateRef.current = new Date(todayLocal.getTime() - (offset*60*1000)).toISOString().split('T')[0];
+
     fetchData();
     
-    // Auto-refresh at midnight
+    // Auto-refresh at midnight (for active tabs)
     const now = new Date();
     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const msUntilMidnight = tomorrow - now;
@@ -28,9 +33,24 @@ export default function Dashboard() {
       window.location.reload();
     }, msUntilMidnight);
 
+    // Wake-up check (for mobile devices where background tabs sleep)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const currentLocal = new Date();
+        const currentOffset = currentLocal.getTimezoneOffset();
+        const currentStr = new Date(currentLocal.getTime() - (currentOffset*60*1000)).toISOString().split('T')[0];
+        
+        if (lastFetchDateRef.current && lastFetchDateRef.current !== currentStr) {
+          window.location.reload();
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       clearInterval(timerRef.current);
       clearTimeout(midnightTimeout);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
