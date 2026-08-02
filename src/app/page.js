@@ -171,8 +171,13 @@ export default function Dashboard() {
       const offset = todayLocal.getTimezoneOffset();
       const todayStr = new Date(todayLocal.getTime() - (offset*60*1000)).toISOString().split('T')[0];
 
-      // Update DB
-      await supabase.from('task_completions').insert([{ task_id: focusTask.id, date: todayStr, status: 'quit' }]);
+      // Update DB with robust error boundary verification
+      const { error } = await supabase.from('task_completions').insert([{ task_id: focusTask.id, date: todayStr, status: 'quit' }]);
+      
+      if (error) {
+        toast.error('Failed to communicate with database. Please verify your connection.');
+        return;
+      }
       
       // Update UI
       setTasks(tasks.map(t => t.id === focusTask.id ? { ...t, completion_status: 'quit' } : t));
@@ -186,8 +191,13 @@ export default function Dashboard() {
     const offset = todayLocal.getTimezoneOffset();
     const todayStr = new Date(todayLocal.getTime() - (offset*60*1000)).toISOString().split('T')[0];
 
-    // Update DB
-    await supabase.from('task_completions').insert([{ task_id: focusTask.id, date: todayStr, status: 'completed' }]);
+    // Update DB with robust error boundary verification
+    const { error } = await supabase.from('task_completions').insert([{ task_id: focusTask.id, date: todayStr, status: 'completed' }]);
+    
+    if (error) {
+      toast.error('Failed to record objective completion. Please verify your internet connection.');
+      return;
+    }
     
     // Update UI
     setTasks(tasks.map(t => t.id === focusTask.id ? { ...t, completion_status: 'completed' } : t));
