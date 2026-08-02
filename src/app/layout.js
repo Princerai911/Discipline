@@ -18,7 +18,6 @@ export const metadata = {
   title: "Discipline Tracker",
   description: "Premium goal and task tracking",
   manifest: "/manifest.json",
-  themeColor: "#8b5cf6",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -27,6 +26,7 @@ export const metadata = {
 };
 
 export const viewport = {
+  themeColor: "#8b5cf6",
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,

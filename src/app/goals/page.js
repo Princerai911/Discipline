@@ -47,7 +47,12 @@ export default function GoalsPage() {
       .insert([{ title: newGoalTitle, description: newGoalDescription }])
       .select('*, tasks(*)');
 
-    if (!error && data) {
+    if (error) {
+      toast.error('Failed to create objective: ' + error.message);
+      return;
+    }
+
+    if (data) {
       setGoals([data[0], ...goals]);
       setNewGoalTitle('');
       setNewGoalDescription('');
@@ -59,7 +64,9 @@ export default function GoalsPage() {
   async function deleteGoal(id) {
     if (confirm("Are you sure you want to delete this goal and all its tasks?")) {
       const { error } = await supabase.from('goals').delete().eq('id', id);
-      if (!error) {
+      if (error) {
+        toast.error('Failed to delete objective: ' + error.message);
+      } else {
         setGoals(goals.filter(g => g.id !== id));
         toast.success('Objective Deleted');
       }
@@ -73,6 +80,11 @@ export default function GoalsPage() {
       return;
     }
 
+    if (newTaskStartTime === newTaskEndTime) {
+      toast.error('Start Time and End Time cannot be identical.');
+      return;
+    }
+
     const { data, error } = await supabase
       .from('tasks')
       .insert([{ 
@@ -83,7 +95,12 @@ export default function GoalsPage() {
       }])
       .select('*');
 
-    if (!error && data) {
+    if (error) {
+      toast.error('Failed to save habit: ' + error.message);
+      return;
+    }
+
+    if (data) {
       setGoals(goals.map(g => {
         if (g.id === goalId) {
           return { ...g, tasks: [...g.tasks, data[0]] };
@@ -99,6 +116,11 @@ export default function GoalsPage() {
   }
 
   async function updateTask(task) {
+    if (task.scheduled_time === task.end_time) {
+      toast.error('Start Time and End Time cannot be identical.');
+      return;
+    }
+
     const { error } = await supabase
       .from('tasks')
       .update({ 
@@ -108,7 +130,9 @@ export default function GoalsPage() {
       })
       .eq('id', task.id);
     
-    if (!error) {
+    if (error) {
+      toast.error('Failed to update habit: ' + error.message);
+    } else {
       setGoals(goals.map(g => {
         if (g.id === task.goal_id) {
           return { ...g, tasks: g.tasks.map(t => t.id === task.id ? task : t) };
@@ -123,7 +147,9 @@ export default function GoalsPage() {
   async function deleteTask(taskId, goalId) {
     if (confirm("Delete this habit?")) {
       const { error } = await supabase.from('tasks').delete().eq('id', taskId);
-      if (!error) {
+      if (error) {
+        toast.error('Failed to delete habit: ' + error.message);
+      } else {
         setGoals(goals.map(g => {
           if (g.id === goalId) return { ...g, tasks: g.tasks.filter(t => t.id !== taskId) };
           return g;
