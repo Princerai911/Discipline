@@ -26,6 +26,52 @@ export default function Dashboard() {
 
     fetchData();
     
+    // Restore active focus session from localStorage (resilient across network loss and reloads)
+    const savedSession = localStorage.getItem('active_focus_session');
+    if (savedSession) {
+      try {
+        const { task, targetEndTime } = JSON.parse(savedSession);
+        const remaining = Math.round((targetEndTime - Date.now()) / 1000);
+        setFocusTask(task);
+        targetEndTimeRef.current = targetEndTime;
+        if (remaining <= 0) {
+          setTimeLeft(0);
+          setTimerActive(false);
+          setTimerFinished(true);
+        } else {
+          setTimeLeft(remaining);
+          setTimerActive(true);
+          setTimerFinished(false);
+        }
+      } catch (e) {
+        console.error('Failed to restore offline timer session:', e);
+      }
+    }
+
+    // Automatically synchronize any tasks completed or quit while offline
+    const syncOfflineCompletions = async () => {
+      if (typeof window === 'undefined' || !navigator.onLine) return;
+      const queueStr = localStorage.getItem('offline_sync_queue');
+      if (queueStr) {
+        try {
+          const queue = JSON.parse(queueStr);
+          if (queue && queue.length > 0) {
+            const { error } = await supabase.from('task_completions').insert(queue);
+            if (!error) {
+              localStorage.removeItem('offline_sync_queue');
+              toast.success('Offline execution data synchronized with server!');
+              fetchData();
+            }
+          }
+        } catch (e) {
+          console.error('Failed to process offline queue:', e);
+        }
+      }
+    };
+
+    syncOfflineCompletions();
+    window.addEventListener('online', syncOfflineCompletions);
+
     // Auto-refresh at midnight (for active tabs)
     const now = new Date();
     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
@@ -43,6 +89,8 @@ export default function Dashboard() {
         
         if (lastFetchDateRef.current && lastFetchDateRef.current !== currentStr) {
           window.location.reload();
+        } else {
+          syncOfflineCompletions();
         }
       }
     };
@@ -52,6 +100,7 @@ export default function Dashboard() {
       clearInterval(timerRef.current);
       clearTimeout(midnightTimeout);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('online', syncOfflineCompletions);
     };
   }, []);
 
@@ -161,9 +210,13 @@ export default function Dashboard() {
     setFocusTask(task);
     const seconds = calculateDurationSeconds(task.scheduled_time, task.end_time);
     setTimeLeft(seconds);
-    targetEndTimeRef.current = Date.now() + (seconds * 1000);
+    const targetEndTime = Date.now() + (seconds * 1000);
+    targetEndTimeRef.current = targetEndTime;
     setTimerActive(true);
     setTimerFinished(false);
+    
+    // Persist active session in localStorage to survive offline reloads
+    localStorage.setItem('active_focus_session', JSON.stringify({ task, targetEndTime }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -176,17 +229,27 @@ export default function Dashboard() {
       const offset = todayLocal.getTimezoneOffset();
       const todayStr = new Date(todayLocal.getTime() - (offset*60*1000)).toISOString().split('T')[0];
 
-      // Update DB with robust error boundary verification
-      const { error } = await supabase.from('task_completions').insert([{ task_id: focusTask.id, date: todayStr, status: 'quit' }]);
+      const item = { task_id: focusTask.id, date: todayStr, status: 'quit' };
       
-      if (error) {
-        toast.error('Failed to communicate with database. Please verify your connection.');
-        return;
+      if (!navigator.onLine) {
+        // Save to offline queue if internet is down
+        const existing = JSON.parse(localStorage.getItem('offline_sync_queue') || '[]');
+        localStorage.setItem('offline_sync_queue', JSON.stringify([...existing, item]));
+        toast.error('Task Failed offline! Will synchronize automatically when connection restores.');
+      } else {
+        const { error } = await supabase.from('task_completions').insert([item]);
+        if (error) {
+          // Fallback to offline queue if server drop occurs
+          const existing = JSON.parse(localStorage.getItem('offline_sync_queue') || '[]');
+          localStorage.setItem('offline_sync_queue', JSON.stringify([...existing, item]));
+          toast.error('Network drop detected. Saved failed task locally for sync.');
+        } else {
+          toast.error('Task Failed. Discipline Broken.');
+        }
       }
       
-      // Update UI
+      localStorage.removeItem('active_focus_session');
       setTasks(tasks.map(t => t.id === focusTask.id ? { ...t, completion_status: 'quit' } : t));
-      toast.error('Task Failed. Discipline Broken.');
       setFocusTask(null);
     }
   };
@@ -196,21 +259,30 @@ export default function Dashboard() {
     const offset = todayLocal.getTimezoneOffset();
     const todayStr = new Date(todayLocal.getTime() - (offset*60*1000)).toISOString().split('T')[0];
 
-    // Update DB with robust error boundary verification
-    const { error } = await supabase.from('task_completions').insert([{ task_id: focusTask.id, date: todayStr, status: 'completed' }]);
-    
-    if (error) {
-      toast.error('Failed to record objective completion. Please verify your internet connection.');
-      return;
+    const item = { task_id: focusTask.id, date: todayStr, status: 'completed' };
+
+    if (!navigator.onLine) {
+      // Save to offline queue if internet is down
+      const existing = JSON.parse(localStorage.getItem('offline_sync_queue') || '[]');
+      localStorage.setItem('offline_sync_queue', JSON.stringify([...existing, item]));
+      toast.success('Recorded offline! Will synchronize automatically when internet restores.');
+    } else {
+      const { error } = await supabase.from('task_completions').insert([item]);
+      if (error) {
+        // Fallback to offline queue if server communication fails
+        const existing = JSON.parse(localStorage.getItem('offline_sync_queue') || '[]');
+        localStorage.setItem('offline_sync_queue', JSON.stringify([...existing, item]));
+        toast.success('Recorded locally! Will sync when connection stabilizes.');
+      } else {
+        toast.success('Objective Completed. Good work.');
+      }
     }
     
-    // Update UI
+    localStorage.removeItem('active_focus_session');
     setTasks(tasks.map(t => t.id === focusTask.id ? { ...t, completion_status: 'completed' } : t));
     
-    // Re-calculate streak optimistically if it was 0 and this is the first task done today
     if (currentStreak === 0) setCurrentStreak(1);
     
-    toast.success('Objective Completed. Good work.');
     setFocusTask(null);
     setTimerFinished(false);
   };
