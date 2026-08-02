@@ -301,15 +301,17 @@ export default function Dashboard() {
                   style={{ flex: 1, padding: '1rem', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 800 }}
                 >
                   {timerActive ? 'Pause' : 'Resume'}
-                </button>
                 <button 
                   onClick={handleQuit}
+                  className="danger-button"
                   style={{ 
-                    flex: 1, padding: '1rem', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', 
-                    border: '1px solid #ef4444', color: '#ef4444', cursor: 'pointer', fontWeight: 800 
+                    flex: 1, padding: '1rem', borderRadius: '12px', cursor: 'pointer', fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'
                   }}
                 >
-                  Quit
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                  </svg>
+                  Abort / Quit
                 </button>
               </>
             )}

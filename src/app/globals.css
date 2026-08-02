@@ -124,6 +124,27 @@ body {
   transform: translateY(0);
 }
 
+.danger-button {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(185, 28, 28, 0.35));
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.2);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.danger-button:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(185, 28, 28, 0.5));
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+.danger-button:active {
+  transform: translateY(0);
+}
+
 /* Visibility Utilities */
 @media (min-width: 768px) {
   .mobile-only {
