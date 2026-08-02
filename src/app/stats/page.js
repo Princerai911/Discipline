@@ -140,22 +140,40 @@ export default function StatsPage() {
   const validDaysForMax = calendarDays.filter(d => d !== null);
   const maxCompletions = Math.max(...validDaysForMax.map(d => completions[d.dateStr] || 0), 1);
 
-  const getColorForPercentage = (count, max, dateStr) => {
-    const today = new Date();
-    const offset = today.getTimezoneOffset();
-    const localTodayStr = new Date(today.getTime() - (offset*60*1000)).toISOString().split('T')[0];
+  // Compute local today string once safely avoiding UTC shift bugs
+  const todayLocal = new Date();
+  const offset = todayLocal.getTimezoneOffset();
+  const localTodayStr = new Date(todayLocal.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
 
-    const isPastOrToday = dateStr <= localTodayStr;
+  const getColorForPercentage = (count, max, dateStr) => {
+    const isPast = dateStr < localTodayStr;
+    const isToday = dateStr === localTodayStr;
     const isAfterStart = startDate && dateStr >= startDate;
 
-    if (!count || count === 0) {
-      if (isPastOrToday && isAfterStart) return '#ef4444'; // Red for failed days
-      return 'rgba(255, 255, 255, 0.02)'; 
+    // 1. PAST DAYS (Concluded - strictly graded)
+    if (isPast) {
+      if (!count || count === 0) {
+        return isAfterStart ? '#ef4444' : 'rgba(255, 255, 255, 0.02)'; // Red for missed past days
+      }
+      const percentage = count / max;
+      if (percentage >= 0.8) return '#10b981'; // Emerald Green (>= 80%)
+      if (percentage >= 0.5) return '#8b5cf6'; // Purple (>= 50%)
+      return '#ef4444'; // Red (< 50% failed completion target)
     }
-    const percentage = count / max;
-    if (percentage >= 0.8) return '#10b981'; // Emerald Green
-    if (percentage >= 0.5) return '#8b5cf6'; // Purple
-    return '#ef4444'; // Red
+
+    // 2. TODAY (In Progress - encouraging & dynamic, never Red while day is active)
+    if (isToday) {
+      if (!count || count === 0) {
+        return 'rgba(139, 92, 246, 0.15)'; // Soft glowing purple indicating active opportunity
+      }
+      const percentage = count / max;
+      if (percentage >= 0.8) return '#10b981'; // Emerald Green (celebrate reaching 80%!)
+      if (percentage >= 0.5) return '#8b5cf6'; // Purple (>= 50%)
+      return '#3b82f6'; // Vibrant Blue for in-progress efforts (< 50%)
+    }
+
+    // 3. FUTURE DAYS
+    return 'rgba(255, 255, 255, 0.02)'; 
   };
 
   return (
@@ -228,13 +246,9 @@ export default function StatsPage() {
                 const count = completions[item.dateStr] || 0;
                 const bgColor = getColorForPercentage(count, maxCompletions, item.dateStr);
                 const isFailed = bgColor === '#ef4444';
-                const hasActivity = count > 0 || isFailed;
+                const isToday = item.dateStr === localTodayStr;
+                const hasActivity = count > 0 || isFailed || isToday;
                 
-                // Highlight today
-                const todayLocal = new Date();
-                const offset = todayLocal.getTimezoneOffset();
-                const isToday = new Date(todayLocal.getTime() - (offset*60*1000)).toISOString().split('T')[0] === item.dateStr;
-
                 return (
                   <div 
                     key={item.dateStr}
@@ -243,13 +257,13 @@ export default function StatsPage() {
                       aspectRatio: '1', 
                       background: bgColor, 
                       borderRadius: '8px',
-                      border: isToday ? '2px solid white' : '1px solid rgba(255,255,255,0.05)', 
+                      border: isToday ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.05)', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      boxShadow: hasActivity ? `0 0 12px ${bgColor}40` : 'none', 
+                      boxShadow: isToday ? '0 0 16px rgba(139, 92, 246, 0.5)' : (hasActivity ? `0 0 12px ${bgColor}40` : 'none'), 
                       transition: 'all 0.2s',
-                      color: hasActivity ? 'white' : 'var(--muted-foreground)',
+                      color: (count > 0 || isFailed) ? 'white' : (isToday ? '#ffffff' : 'var(--muted-foreground)'),
                       fontWeight: isToday ? 800 : (hasActivity ? 700 : 500),
                       fontSize: '0.9rem'
                     }}
@@ -276,8 +290,8 @@ export default function StatsPage() {
                 const count = completions[item.dateStr] || 0;
                 const bgColor = getColorForPercentage(count, maxCompletions, item.dateStr);
                 const isFailed = bgColor === '#ef4444' && count === 0;
-                const heightPercentage = count > 0 ? (count / maxCompletions) * 100 : (isFailed ? 5 : 2); // Show a slight bump for failed days
-                const isToday = new Date().toISOString().split('T')[0] === item.dateStr;
+                const isToday = item.dateStr === localTodayStr;
+                const heightPercentage = count > 0 ? (count / maxCompletions) * 100 : (isFailed || isToday ? 5 : 2);
 
                 return (
                   <div key={`chart-${item.dateStr}`} style={{ flex: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '15px' }}>
@@ -286,7 +300,7 @@ export default function StatsPage() {
                       style={{ 
                         width: '100%', 
                         height: `${heightPercentage}%`, 
-                        background: (count > 0 || isFailed) ? bgColor : 'rgba(255,255,255,0.05)',
+                        background: (count > 0 || isFailed || isToday) ? bgColor : 'rgba(255,255,255,0.05)',
                         borderRadius: '4px 4px 0 0',
                         transition: 'height 0.3s ease, background 0.3s ease',
                         boxShadow: count > 0 && isToday ? `0 0 10px ${bgColor}60` : 'none'
