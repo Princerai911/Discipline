@@ -153,6 +153,11 @@ export default function Dashboard() {
   }
 
   const startFocus = (task) => {
+    if (focusTask && focusTask.id !== task.id) {
+      toast.error(`You must complete or quit '${focusTask.title}' before engaging a new objective!`, { duration: 4000 });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setFocusTask(task);
     const seconds = calculateDurationSeconds(task.scheduled_time, task.end_time);
     setTimeLeft(seconds);
@@ -419,14 +424,42 @@ export default function Dashboard() {
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                {task.completion_status === 'pending' && (!focusTask || focusTask.id !== task.id) && (
-                  <button 
-                    onClick={() => startFocus(task)}
-                    className="premium-button"
-                    style={{ padding: '0.6rem 1rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', border: 'none' }}
-                  >
-                    FOCUS
-                  </button>
+                {task.completion_status === 'pending' && (
+                  <>
+                    {/* Case 1: This task is currently active */}
+                    {focusTask?.id === task.id && (
+                      <span style={{ color: 'var(--primary)', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        ⚡ ACTIVE
+                      </span>
+                    )}
+
+                    {/* Case 2: Another task is active - lock this objective */}
+                    {focusTask && focusTask.id !== task.id && (
+                      <button 
+                        onClick={() => startFocus(task)}
+                        style={{ 
+                          padding: '0.6rem 0.85rem', borderRadius: '8px', fontSize: '0.75rem', 
+                          fontWeight: 800, cursor: 'pointer', border: '1px solid var(--card-border)', 
+                          background: 'rgba(255,255,255,0.05)', color: 'var(--muted-foreground)',
+                          display: 'flex', alignItems: 'center', gap: '0.3rem'
+                        }}
+                        title="Complete or quit current focus first"
+                      >
+                        🔒 LOCKED
+                      </button>
+                    )}
+
+                    {/* Case 3: No task active - ready for focus */}
+                    {!focusTask && (
+                      <button 
+                        onClick={() => startFocus(task)}
+                        className="premium-button"
+                        style={{ padding: '0.6rem 1rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', border: 'none' }}
+                      >
+                        FOCUS
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>
