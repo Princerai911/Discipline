@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Discipline Engine - Technical Application Brief</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: "Page " counter(page);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 8pt;
+        color: #888;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 9.5pt;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Cover / Header */
+    .header-banner {
+      background: linear-gradient(135deg, #09090b 0%, #18181b 100%);
+      color: #ffffff;
+      padding: 24px 28px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+      border-left: 6px solid #8b5cf6;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .badge-pill {
+      display: inline-block;
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.25);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      margin-bottom: 8px;
+    }
+
+    .header-title {
+      font-size: 20pt;
+      font-weight: 800;
+      margin: 0 0 6px 0;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .header-subtitle {
+      font-size: 10.5pt;
+      color: #a1a1aa;
+      margin: 0 0 14px 0;
+      font-weight: 400;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 12px;
+      margin-top: 10px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 7pt;
+      text-transform: uppercase;
+      color: #71717a;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-val {
+      font-size: 8.5pt;
+      color: #e4e4e7;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    /* Section Headings */
+    h2 {
+      font-size: 12.5pt;
+      font-weight: 800;
+      color: #09090b;
+      margin: 20px 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      page-break-after: avoid;
+    }
+
+    h2 .num {
+      background: #8b5cf6;
+      color: #ffffff;
+      font-size: 8pt;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 14px 0 6px 0;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin: 0 0 8px 0;
+    }
+
+    /* Cards */
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      break-inside: avoid;
+    }
+
+    .card-dark {
+      background: #09090b;
+      color: #f4f4f5;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      break-inside: avoid;
+    }
+
+    /* Grid utilities */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px 0;
+      font-size: 8.5pt;
+      break-inside: avoid;
+    }
+
+    th {
+      background: #0f172a;
+      color: #ffffff;
+      text-align: left;
+      padding: 7px 10px;
+      font-weight: 600;
+      font-size: 8pt;
+      letter-spacing: 0.3px;
+    }
+
+    th:first-child {
+      border-top-left-radius: 6px;
+    }
+    th:last-child {
+      border-top-right-radius: 6px;
+    }
+
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* Badges */
+    .tag {
+      display: inline-block;
+      font-size: 7pt;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .tag-purple {
+      background: #ede9fe;
+      color: #6d28d9;
+    }
+
+    .tag-green {
+      background: #d1fae5;
+      color: #047857;
+    }
+
+    .tag-red {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .tag-blue {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    /* Code & Tree */
+    pre, code {
+      font-family: 'JetBrains Mono', Consolas, Menlo, monospace;
+    }
+
+    pre {
+      background: #09090b;
+      color: #e4e4e7;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 7.8pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      margin: 8px 0 12px 0;
+      border: 1px solid #27272a;
+      break-inside: avoid;
+    }
+
+    code.inline {
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-size: 8pt;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Callout */
+    .callout {
+      border-left: 3px solid #8b5cf6;
+      background: #f5f3ff;
+      padding: 10px 14px;
+      border-radius: 0 6px 6px 0;
+      margin: 10px 0;
+      font-size: 8.8pt;
+      color: #4c1d95;
+      break-inside: avoid;
+    }
+
+    .callout-warning {
+      border-left: 3px solid #ef4444;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .section-block {
+      break-inside: avoid;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Banner -->
+  <div class="header-banner">
+    <div class="badge-pill">Technical Specification & AI Architecture Dossier</div>
+    <div class="header-title">DISCIPLINE ENGINE</div>
+    <div class="header-subtitle">Private Routine Execution, Strict Focus Lockdown & Accountability System</div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">Framework</span>
+        <span class="meta-val">Next.js 16 (React 19)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Database</span>
+        <span class="meta-val">Supabase (PostgreSQL)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Platform</span>
+        <span class="meta-val">Mobile PWA (Offline-First)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Styling</span>
+        <span class="meta-val">Tailwind v4 + Glassmorphism</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 1: Executive Summary -->
+  <div class="section-block">
+    <h2><span class="num">01</span> Executive Summary & Core Philosophy</h2>
+    <p>
+      <strong>Discipline</strong> is not a passive todo list or casual habit tracker. It is an <strong>aggressive execution protocol</strong> modeled after high-stakes personal discipline regimens.
+    </p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="margin-top:0; color: #6d28d9;">⚡ Single-Task Lock Engine</h3>
+        <p style="font-size: 8.5pt; color: #475569; margin: 0;">
+          Once an objective timer begins, the user is locked into that task. All other daily routines display <code class="inline">🔒 LOCKED</code> to eliminate context-switching and mental dithering.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0; color: #b91c1c;">🚫 Honest Penalization</h3>
+        <p style="font-size: 8.5pt; color: #475569; margin: 0;">
+          Tasks cannot be casually checked off or toggled back and forth. You either see the timer through to completion or tap <strong>Abort / Quit</strong>, permanently logging a failure and turning progress rings red.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="margin-top:0; color: #047857;">⏱️ Real-Clock Resilience</h3>
+        <p style="font-size: 8.5pt; color: #475569; margin: 0;">
+          Timers calculate duration against absolute wall-clock timestamps (<code class="inline">Date.now()</code>). Locking mobile screens or backgrounding browser tabs will never pause, drift, or corrupt countdowns.
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0; color: #1d4ed8;">📶 Offline-First Queue</h3>
+        <p style="font-size: 8.5pt; color: #475569; margin: 0;">
+          Active focus state and task completions are stored in <code class="inline">localStorage</code>. When offline, actions queue up and automatically sync with Supabase when internet connectivity is re-established.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Tech Stack -->
+  <div class="section-block">
+    <h2><span class="num">02</span> Full Technology Stack & Dependencies</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 22%;">Domain</th>
+          <th style="width: 28%;">Package / Technology</th>
+          <th>Description & Architectural Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Framework</strong></td>
+          <td><code class="inline">next: 16.2.10</code></td>
+          <td>Next.js App Router, React Server Components & client boundary execution</td>
+        </tr>
+        <tr>
+          <td><strong>Runtime UI</strong></td>
+          <td><code class="inline">react: 19.2.4</code></td>
+          <td>React 19 hooks (<code class="inline">useState</code>, <code class="inline">useEffect</code>, <code class="inline">useRef</code>), modern hydration</td>
+        </tr>
+        <tr>
+          <td><strong>Backend & DB</strong></td>
+          <td><code class="inline">@supabase/supabase-js: ^2.110.7</code></td>
+          <td>PostgreSQL persistence, Row Level Security (RLS), real-time client SDK</td>
+        </tr>
+        <tr>
+          <td><strong>Styling Engine</strong></td>
+          <td><code class="inline">@tailwindcss/postcss: ^4</code></td>
+          <td>Tailwind CSS v4 with custom dark glassmorphism CSS custom properties</td>
+        </tr>
+        <tr>
+          <td><strong>Toast Alerts</strong></td>
+          <td><code class="inline">react-hot-toast: ^2.6.0</code></td>
+          <td>Minimalist, glassmorphic HUD notifications for sync, success, and errors</td>
+        </tr>
+        <tr>
+          <td><strong>Typography</strong></td>
+          <td><code class="inline">next/font/google</code></td>
+          <td>Vercel Geist & Geist Mono loaded with zero-layout-shift variable fonts</td>
+        </tr>
+        <tr>
+          <td><strong>PWA Architecture</strong></td>
+          <td><code class="inline">manifest.json</code></td>
+          <td>Standalone mobile display mode, theme colors, install prompt interceptors</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Section 3: Architecture & File System -->
+  <div class="section-block">
+    <h2><span class="num">03</span> Codebase Architecture & File Structure</h2>
+    <pre>Discipline/
+├── public/
+│   ├── manifest.json            # PWA manifest (standalone, theme #8b5cf6, background #050505)
+│   ├── icon.svg                 # Scalable application icon for mobile homescreens
+│   └── ...                      # Static vectors
+├── src/
+│   ├── app/
+│   │   ├── layout.js            # Global wrapper: 480px mobile frame, header, navigation, Toaster
+│   │   ├── globals.css          # Design system: glass-panel, neon glows, radial gradients, animations
+│   │   ├── page.js              # [ / ] Execution Dashboard (Focus Engine, day progress ring, streaks)
+│   │   ├── goals/page.js        # [ /goals ] Master Plan (CRUD for Objectives and time-blocked Habits)
+│   │   ├── stats/page.js        # [ /stats ] Analytics (Streaks & interactive Monthly Heatmap Calendar)
+│   │   └── notes/page.js        # [ /notes ] Daily Reflection Journal (Mind-clearing entries & timestamps)
+│   ├── components/
+│   │   ├── Navigation.js        # Pill-shaped top navigation bar with active route highlighting
+│   │   ├── InstallButton.js     # Intercepts beforeinstallprompt, tailored iOS Safari instructions
+│   │   └── OfflineBanner.js     # Floating HUD banner signaling offline status & local timer cache
+│   └── lib/
+│       └── supabase.js          # Shared Supabase client configuration
+├── supabase_schema.sql          # Base schema (goals, tasks)
+├── update_schema.sql            # Daily recurring migration (task_completions table, scheduled_time)
+├── upgrade_v2.sql               # V2 migration (end_time column, status 'completed' | 'quit')
+├── notes_schema.sql             # Journal table (notes)
+└── auth_schema.sql              # Supabase Auth migration (user_id FKs & authenticated RLS)</pre>
+  </div>
+
+  <!-- Section 4: Data Models & Database Schemas -->
+  <h2><span class="num">04</span> Data Models & Database Schemas</h2>
+  <p>The Supabase (PostgreSQL) schema decouples overarching long-term goals from scheduled daily routine execution instances.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-top:0;">1. <code class="inline">public.goals</code></h3>
+      <p style="font-size: 8pt; color: #64748b; margin-bottom: 6px;">Master goals/categories grouping routines.</p>
+      <ul style="margin: 0; padding-left: 16px; font-size: 8pt; color: #334155;">
+        <li><code class="inline">id</code>: uuid (PK, default <code class="inline">gen_random_uuid()</code>)</li>
+        <li><code class="inline">title</code>: text (NOT NULL)</li>
+        <li><code class="inline">description</code>: text (optional)</li>
+        <li><code class="inline">user_id</code>: uuid (FK <code class="inline">auth.users.id</code>)</li>
+        <li><code class="inline">created_at</code>: timestamptz</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">2. <code class="inline">public.tasks</code></h3>
+      <p style="font-size: 8pt; color: #64748b; margin-bottom: 6px;">Daily recurring routines with time-blocks.</p>
+      <ul style="margin: 0; padding-left: 16px; font-size: 8pt; color: #334155;">
+        <li><code class="inline">id</code>: uuid (PK, default <code class="inline">gen_random_uuid()</code>)</li>
+        <li><code class="inline">goal_id</code>: uuid (FK <code class="inline">goals.id</code> ON DELETE CASCADE)</li>
+        <li><code class="inline">title</code>: text (NOT NULL)</li>
+        <li><code class="inline">scheduled_time</code>: time (Start time, e.g. <code class="inline">07:00:00</code>)</li>
+        <li><code class="inline">end_time</code>: time (Target finish time, e.g. <code class="inline">08:00:00</code>)</li>
+        <li><code class="inline">created_at</code>: timestamptz</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-top:0;">3. <code class="inline">public.task_completions</code></h3>
+      <p style="font-size: 8pt; color: #64748b; margin-bottom: 6px;">Daily execution audit trail with unique daily constraint.</p>
+      <ul style="margin: 0; padding-left: 16px; font-size: 8pt; color: #334155;">
+        <li><code class="inline">id</code>: uuid (PK, default <code class="inline">gen_random_uuid()</code>)</li>
+        <li><code class="inline">task_id</code>: uuid (FK <code class="inline">tasks.id</code> ON DELETE CASCADE)</li>
+        <li><code class="inline">date</code>: date (DEFAULT <code class="inline">current_date</code>)</li>
+        <li><code class="inline">status</code>: text (<code class="inline">'completed'</code> | <code class="inline">'quit'</code>)</li>
+        <li><code class="inline">completed_at</code>: timestamptz</li>
+        <li><strong>Constraint:</strong> <code class="inline">UNIQUE(task_id, date)</code></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">4. <code class="inline">public.notes</code></h3>
+      <p style="font-size: 8pt; color: #64748b; margin-bottom: 6px;">Reflective journaling and mind-clearing entries.</p>
+      <ul style="margin: 0; padding-left: 16px; font-size: 8pt; color: #334155;">
+        <li><code class="inline">id</code>: uuid (PK, default <code class="inline">gen_random_uuid()</code>)</li>
+        <li><code class="inline">content</code>: text (NOT NULL)</li>
+        <li><code class="inline">user_id</code>: uuid (FK <code class="inline">auth.users.id</code>)</li>
+        <li><code class="inline">created_at</code>: timestamptz</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Section 5: Page-by-Page Feature Breakdown -->
+  <h2><span class="num">05</span> Page-by-Page Feature Breakdown</h2>
+
+  <h3>A. Execution Phase / Today Dashboard (<code class="inline">/</code>)</h3>
+  <ul>
+    <li><strong>Protocol List:</strong> Daily routines ordered by <code class="inline">scheduled_time</code>. Each routine shows start time, title, parent goal badge, and execution status (<span class="tag tag-blue">PENDING</span>, <span class="tag tag-green">SUCCESS</span>, or <span class="tag tag-red">FAILED</span>).</li>
+    <li><strong>Interactive Focus Session:</strong> Initiating focus computes duration in seconds (<code class="inline">(endTime - startTime)</code> with a 25-minute fallback) and renders a prominent countdown clock with dynamic glowing borders.</li>
+    <li><strong>Strict Task Locking:</strong> Any non-focused task switches its button to <code class="inline">🔒 LOCKED</code>, prompting the user with a warning toast if tapped.</li>
+    <li><strong>Gamification HUD:</strong>
+      <ul style="margin-top: 4px;">
+        <li><strong>Streak Display:</strong> Consecutive active days calculation with a subtle flame emoji for streaks &gt; 2.</li>
+        <li><strong>Dynamic Circular Progress Ring:</strong> SVG SVG-dashoffset ring that turns <em>Emerald Green</em> (&ge;80%), <em>Purple</em> (&ge;50%), or <em>Crimson Red</em> if any failure/quit was recorded.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>B. Master Plan / Goals Management (<code class="inline">/goals</code>)</h3>
+  <ul>
+    <li>Create high-level objectives (e.g. "Physical Mastery", "Deep Engineering").</li>
+    <li>Add recurring daily habits under each goal specifying title, start time, and end time.</li>
+    <li>Includes client-side validation preventing identical start and end timestamps and empty titles.</li>
+    <li>Inline habit editing and cascade deletion with confirmation dialogues.</li>
+  </ul>
+
+  <h3>C. Discipline Analytics & Calendar Heatmap (<code class="inline">/stats</code>)</h3>
+  <ul>
+    <li>Calculates both <strong>Current Active Streak</strong> and <strong>All-Time Longest Streak</strong>.</li>
+    <li><strong>Intelligent Calendar Heatmap:</strong>
+      <ul>
+        <li>Days prior to first goal creation remain neutral/muted.</li>
+        <li>Past days with 0 completions highlight in glowing <strong>Red</strong> to expose broken discipline.</li>
+        <li>Current ongoing day stays neutral with violet accent so users aren't unfairly penalized during the daytime.</li>
+        <li>Active completion days scale in vibrant green/purple intensity based on volume.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>D. Daily Journal / Reflections (<code class="inline">/notes</code>)</h3>
+  <ul>
+    <li>Uncluttered reflection textarea for night reviews: "What went well today, what will I improve tomorrow."</li>
+    <li>Reverse chronological feed displaying formatted weekday, date, and 12-hour timestamp tags.</li>
+  </ul>
+
+  <!-- Section 6: Key Technical Mechanisms -->
+  <h2><span class="num">06</span> Key Technical Mechanisms & Resiliency</h2>
+
+  <div class="card">
+    <h3 style="margin-top:0;">1. Wall-Clock Absolute Timer (Zero Background Drift)</h3>
+    <p style="font-size: 8.5pt;">
+      Mobile operating systems aggressively throttle or freeze JavaScript <code class="inline">setInterval</code> timers when screens turn off or tabs are backgrounded. Discipline avoids this by calculating:
+    </p>
+    <pre>targetEndTime = Date.now() + (durationSeconds * 1000);
+// On every tick:
+remaining = Math.round((targetEndTime - Date.now()) / 1000);</pre>
+    <p style="font-size: 8.5pt; margin-bottom: 0;">
+      Upon re-opening the phone, the exact wall-clock time remaining is calculated instantly. If the duration elapsed while locked, it immediately triggers the completion audio and state.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">2. Offline Storage & Background Sync Queue</h3>
+    <p style="font-size: 8.5pt;">
+      Focus sessions and completions persist through device reboots and spotty connections:
+    </p>
+    <ul style="font-size: 8.5pt; margin: 0; padding-left: 16px;">
+      <li><code class="inline">active_focus_session</code>: Stores current task ID and target timestamp in <code class="inline">localStorage</code>.</li>
+      <li><code class="inline">offline_sync_queue</code>: If a task is completed or quit while offline, an item <code class="inline">{ task_id, date, status }</code> is stored locally.</li>
+      <li>Automatic sync triggers on <code class="inline">window.online</code> and on document <code class="inline">visibilitychange</code>.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0;">3. Timezone-Safe Date Math & Midnight Reset</h3>
+    <p style="font-size: 8.5pt;">
+      Standard <code class="inline">toISOString()</code> introduces UTC date shifts that cause daily tasks to reset at the wrong hour. Discipline normalizes all dates with:
+    </p>
+    <pre>const offset = localDate.getTimezoneOffset();
+const todayStr = new Date(localDate.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];</pre>
+    <p style="font-size: 8.5pt; margin-bottom: 0;">
+      A midnight <code class="inline">setTimeout</code> plus a <code class="inline">visibilitychange</code> date diff check ensures sleeping mobile tabs auto-refresh to day one as soon as the user unlocks their phone the next morning.
+    </p>
+  </div>
+
+  <!-- Section 7: Recent Git Evolution -->
+  <h2><span class="num">07</span> Recent Git Evolution & Changelog</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 15%;">Commit</th>
+        <th style="width: 25%;">Area</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code class="inline">154f57c</code></td>
+        <td><span class="tag tag-purple">Resilience</span></td>
+        <td>Offline timer resilience with localStorage session persistence & sync queue</td>
+      </tr>
+      <tr>
+        <td><code class="inline">04e9373</code></td>
+        <td><span class="tag tag-red">UX / Design</span></td>
+        <td>Elevated focus quit button with glowing crimson glassmorphism styling</td>
+      </tr>
+      <tr>
+        <td><code class="inline">bb46042</code></td>
+        <td><span class="tag tag-blue">Focus Protocol</span></td>
+        <td>Enforced strict focus protocol by locking all other objectives until resolved</td>
+      </tr>
+      <tr>
+        <td><code class="inline">51f94b9</code></td>
+        <td><span class="tag tag-green">Analytics</span></td>
+        <td>Redesigned calendar status evaluation: past days red, active day motivating</td>
+      </tr>
+      <tr>
+        <td><code class="inline">cfce7c1</code></td>
+        <td><span class="tag tag-purple">Framework</span></td>
+        <td>Resolved Next.js metadata deprecation warning and hardened Master Plan CRUD</td>
+      </tr>
+      <tr>
+        <td><code class="inline">aa9be1c</code></td>
+        <td><span class="tag tag-blue">Timer Engine</span></td>
+        <td>Refactored focus timer to use real-world clock to prevent background pausing</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 8: Discussion Roadmap for ChatGPT -->
+  <h2><span class="num">08</span> Strategic Roadmap & Prompts for ChatGPT</h2>
+  <div class="callout">
+    <strong>Suggested Prompt for ChatGPT:</strong><br/>
+    <em>"I have loaded the complete technical specification for my Next.js 16 + Supabase application 'Discipline'. Let's review the architecture and implement the following next high-priority upgrade..."</em>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-top:0;">1. Multi-User Authentication</h3>
+      <p style="font-size: 8pt; color: #475569;">
+        Execute <code class="inline">auth_schema.sql</code> and implement Supabase Auth (Magic Link or OAuth) with middleware route protection.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">2. Web Push & Alarm Notifications</h3>
+      <p style="font-size: 8pt; color: #475569;">
+        Integrate Web Push Notifications / Service Worker to ring scheduled habit alarms at start times.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="margin-top:0;">3. Audio & Haptic Feedback</h3>
+      <p style="font-size: 8pt; color: #475569;">
+        Add Web Audio API synthesizer tones and <code class="inline">navigator.vibrate</code> pulses on timer countdown completion.
+      </p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;">4. Habit Analytics & Export</h3>
+      <p style="font-size: 8pt; color: #475569;">
+        Export completion history and journal entries to Markdown/JSON, and add habit-specific completion rate graphs.
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>

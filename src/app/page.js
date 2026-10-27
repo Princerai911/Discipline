@@ -373,6 +373,7 @@ export default function Dashboard() {
                   style={{ flex: 1, padding: '1rem', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 800 }}
                 >
                   {timerActive ? 'Pause' : 'Resume'}
+                </button>
                 <button 
                   onClick={handleQuit}
                   className="danger-button"
