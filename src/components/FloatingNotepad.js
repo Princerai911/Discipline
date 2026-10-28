@@ -287,6 +287,7 @@ export default function FloatingNotepad() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
+          className="desktop-only"
           title="Quick Screen Notepad (Alt + N)"
           style={{
             position: 'fixed',
@@ -332,6 +333,7 @@ export default function FloatingNotepad() {
       {/* FLOATING RESIZABLE NOTEPAD WINDOW */}
       {isOpen && (
         <div
+          className="desktop-only"
           style={{
             position: 'fixed',
             bottom: isMinimized ? '16px' : '24px',
