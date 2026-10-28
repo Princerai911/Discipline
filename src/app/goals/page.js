@@ -62,7 +62,7 @@ export default function GoalsPage() {
   }
 
   async function deleteGoal(id) {
-    if (confirm("Are you sure you want to delete this goal and all its tasks?")) {
+    if (confirm("Are you sure you want to delete this objective and all its habits?")) {
       const { error } = await supabase.from('goals').delete().eq('id', id);
       if (error) {
         toast.error('Failed to delete objective: ' + error.message);
@@ -76,7 +76,7 @@ export default function GoalsPage() {
   // Task Methods
   async function addTask(goalId) {
     if (!newTaskTitle.trim() || !newTaskStartTime || !newTaskEndTime) {
-      toast.error('Please fill out Title, Start Time, and End Time.');
+      toast.error('Please enter Title, Start Time, and End Time.');
       return;
     }
 
@@ -103,7 +103,7 @@ export default function GoalsPage() {
     if (data) {
       setGoals(goals.map(g => {
         if (g.id === goalId) {
-          return { ...g, tasks: [...g.tasks, data[0]] };
+          return { ...g, tasks: [...(g.tasks || []), data[0]] };
         }
         return g;
       }));
@@ -171,111 +171,339 @@ export default function GoalsPage() {
 
   return (
     <main className="animate-enter">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2 className="text-gradient-accent" style={{ fontSize: '1.75rem', margin: 0, fontWeight: 800 }}>Master Plan</h2>
+      {/* Header Bar */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        gap: '1rem',
+        flexWrap: 'wrap'
+      }}>
+        <div>
+          <h2 className="text-gradient-accent" style={{ fontSize: '1.75rem', margin: 0, fontWeight: 900, letterSpacing: '-0.5px' }}>
+            Master Plan
+          </h2>
+          <p style={{ color: 'var(--muted-foreground)', marginTop: '0.35rem', fontSize: '0.9rem' }}>
+            Architect your high-level objectives and recurring daily habits.
+          </p>
+        </div>
+
         <button 
           onClick={() => setIsAddingGoal(!isAddingGoal)}
           className="premium-button"
-          style={{ padding: '0.6rem 1.25rem', borderRadius: '12px', fontWeight: 700, border: 'none', cursor: 'pointer' }}
+          style={{ padding: '0.75rem 1.35rem', borderRadius: '12px' }}
         >
-          {isAddingGoal ? 'Cancel' : '+ Define Goal'}
+          {isAddingGoal ? 'Cancel' : '+ Define Objective'}
         </button>
       </div>
 
+      {/* Expandable Add Objective Form */}
       {isAddingGoal && (
-        <form onSubmit={addGoal} className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 700 }}>New Objective</h3>
+        <form onSubmit={addGoal} className="glass-panel" style={{
+          padding: '1.75rem',
+          marginBottom: '2.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.25rem',
+          border: '1px solid #cbd5e1',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
+        }}>
+          <div>
+            <h3 style={{ margin: '0 0 0.35rem 0', fontSize: '1.2rem', fontWeight: 800 }}>New Strategic Objective</h3>
+            <p style={{ margin: 0, color: 'var(--muted-foreground)', fontSize: '0.85rem' }}>
+              Define what you want to conquer and reinforce with daily habits.
+            </p>
+          </div>
+
           <input 
             type="text" 
             className="premium-input"
             value={newGoalTitle}
             onChange={(e) => setNewGoalTitle(e.target.value)}
-            placeholder="Objective Title"
-            style={{ width: '100%', padding: '1rem', borderRadius: '12px' }}
+            placeholder="Objective Title (e.g. Master Salesforce Architecture, Peak Physical Condition)"
+            style={{ width: '100%', padding: '1rem' }}
           />
+
           <textarea 
             className="premium-input"
             value={newGoalDescription}
             onChange={(e) => setNewGoalDescription(e.target.value)}
-            placeholder="Why does this matter? (Optional)"
-            style={{ width: '100%', padding: '1rem', borderRadius: '12px', minHeight: '80px', resize: 'vertical' }}
+            placeholder="Why does this matter? What is the standard of success? (Optional)"
+            style={{ width: '100%', padding: '1rem', minHeight: '90px', resize: 'vertical' }}
           />
-          <button type="submit" className="premium-button" disabled={!newGoalTitle.trim()} style={{ padding: '1rem', fontWeight: 700, borderRadius: '12px', border: 'none', cursor: 'pointer', marginTop: '0.5rem' }}>
-            Commit to Goal
-          </button>
+
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={() => setIsAddingGoal(false)}
+              className="premium-button-secondary"
+              style={{ padding: '0.75rem 1.25rem' }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="premium-button"
+              disabled={!newGoalTitle.trim()}
+              style={{ padding: '0.75rem 1.5rem' }}
+            >
+              Commit Objective
+            </button>
+          </div>
         </form>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        {loading && <p style={{ color: 'var(--muted-foreground)' }}>Analyzing objectives...</p>}
-        {!loading && goals.length === 0 && (
-          <div className="glass-panel" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
-            <p style={{ margin: 0, color: 'var(--muted-foreground)', fontSize: '1.1rem' }}>No objectives defined yet.</p>
-          </div>
-        )}
-        
+      {/* Objectives Responsive Grid */}
+      {loading && <p style={{ color: 'var(--muted-foreground)', padding: '2rem 0' }}>Analyzing objectives...</p>}
+      
+      {!loading && goals.length === 0 && !isAddingGoal && (
+        <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎯</div>
+          <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 800 }}>No Objectives Defined</h3>
+          <p style={{ margin: '0 0 1.5rem 0', color: 'var(--muted-foreground)', fontSize: '0.9rem' }}>
+            Create your first strategic objective to anchor your daily discipline habits.
+          </p>
+          <button
+            onClick={() => setIsAddingGoal(true)}
+            className="premium-button"
+            style={{ padding: '0.75rem 1.5rem' }}
+          >
+            + Create Your First Objective
+          </button>
+        </div>
+      )}
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 380px), 1fr))',
+        gap: '1.75rem',
+        alignItems: 'start'
+      }}>
         {goals.map((goal, i) => (
-          <div key={goal.id} className="glass-panel" style={{ padding: '1.5rem', position: 'relative', animationDelay: `${i * 0.1}s` }}>
+          <div
+            key={goal.id}
+            className="glass-panel"
+            style={{
+              padding: '1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              animationDelay: `${i * 0.05}s`
+            }}
+          >
+            {/* Delete Objective Icon */}
             <button 
               onClick={() => deleteGoal(goal.id)}
-              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', color: '#ef4444', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}
+              style={{
+                position: 'absolute',
+                top: '1.25rem',
+                right: '1.25rem',
+                background: 'rgba(239, 68, 68, 0.08)',
+                color: '#ef4444',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '8px',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              title="Delete Objective"
             >
               ×
             </button>
             
-            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 700, paddingRight: '2rem' }}>{goal.title}</h3>
+            <h3 style={{ margin: '0 0 0.4rem 0', fontSize: '1.25rem', fontWeight: 800, paddingRight: '2.5rem' }}>
+              {goal.title}
+            </h3>
+
             {goal.description && (
-              <p style={{ margin: '0 0 1.5rem 0', color: 'var(--muted-foreground)', fontSize: '0.95rem' }}>{goal.description}</p>
+              <p style={{ margin: '0 0 1.25rem 0', color: 'var(--muted-foreground)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                {goal.description}
+              </p>
             )}
 
-            <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--card-border)', paddingTop: '1rem' }}>
+            {/* Habits Section */}
+            <div style={{ marginTop: 'auto', borderTop: '1px solid var(--card-border)', paddingTop: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 600 }}>Daily Habits</h4>
-                <button onClick={() => setAddingTaskToGoal(addingTaskToGoal === goal.id ? null : goal.id)} style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '0.3rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
-                  + Add Habit
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569' }}>
+                  Daily Habits ({goal.tasks?.length || 0})
+                </span>
+                <button
+                  onClick={() => setAddingTaskToGoal(addingTaskToGoal === goal.id ? null : goal.id)}
+                  style={{
+                    background: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    color: '#2563eb',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '8px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {addingTaskToGoal === goal.id ? 'Cancel' : '+ Add Habit'}
                 </button>
               </div>
 
+              {/* Add Habit Inline Form */}
               {addingTaskToGoal === goal.id && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px' }}>
-                  <input type="text" className="premium-input" placeholder="Task Title" value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px' }} />
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <div style={{ flex: 1 }}><label style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>Start Time</label><input type="time" className="premium-input" value={newTaskStartTime} onChange={e => setNewTaskStartTime(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px' }} /></div>
-                    <div style={{ flex: 1 }}><label style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)' }}>End Time</label><input type="time" className="premium-input" value={newTaskEndTime} onChange={e => setNewTaskEndTime(e.target.value)} style={{ padding: '0.75rem', borderRadius: '8px' }} /></div>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  marginBottom: '1rem',
+                  background: '#f8fafc',
+                  padding: '1.15rem',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <input
+                    type="text"
+                    className="premium-input"
+                    placeholder="Habit Title (e.g. 50 Practice Questions)"
+                    value={newTaskTitle}
+                    onChange={e => setNewTaskTitle(e.target.value)}
+                    style={{ padding: '0.75rem' }}
+                  />
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', display: 'block', marginBottom: '0.25rem' }}>Start Time</label>
+                      <input
+                        type="time"
+                        className="premium-input"
+                        value={newTaskStartTime}
+                        onChange={e => setNewTaskStartTime(e.target.value)}
+                        style={{ padding: '0.6rem' }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '0.7rem', color: 'var(--muted-foreground)', display: 'block', marginBottom: '0.25rem' }}>End Time</label>
+                      <input
+                        type="time"
+                        className="premium-input"
+                        value={newTaskEndTime}
+                        onChange={e => setNewTaskEndTime(e.target.value)}
+                        style={{ padding: '0.6rem' }}
+                      />
+                    </div>
                   </div>
-                  <button onClick={() => addTask(goal.id)} className="premium-button" style={{ padding: '0.75rem', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 700, marginTop: '0.5rem' }}>Save Habit</button>
+                  <button
+                    onClick={() => addTask(goal.id)}
+                    className="premium-button"
+                    style={{ padding: '0.75rem', borderRadius: '10px', marginTop: '0.25rem' }}
+                  >
+                    Save Routine
+                  </button>
                 </div>
               )}
 
+              {/* Habits List */}
               {goal.tasks?.length === 0 ? (
-                <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>No habits defined.</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--muted-foreground)', fontStyle: 'italic', margin: '0.5rem 0' }}>
+                  No habits linked to this objective yet.
+                </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {goal.tasks?.map(task => (
-                    <div key={task.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '8px' }}>
+                    <div
+                      key={task.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        background: '#f8fafc',
+                        padding: '0.75rem 0.85rem',
+                        borderRadius: '10px',
+                        border: '1px solid #e2e8f0',
+                        gap: '0.75rem'
+                      }}
+                    >
                       {editingTask?.id === task.id ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
-                          <input type="text" className="premium-input" value={editingTask.title} onChange={e => setEditingTask({...editingTask, title: e.target.value})} style={{ padding: '0.5rem', borderRadius: '6px' }} />
+                          <input
+                            type="text"
+                            className="premium-input"
+                            value={editingTask.title}
+                            onChange={e => setEditingTask({...editingTask, title: e.target.value})}
+                            style={{ padding: '0.5rem' }}
+                          />
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <input type="time" className="premium-input" value={editingTask.scheduled_time?.slice(0,5)} onChange={e => setEditingTask({...editingTask, scheduled_time: `${e.target.value}:00`})} style={{ padding: '0.5rem', borderRadius: '6px' }} />
-                            <input type="time" className="premium-input" value={editingTask.end_time?.slice(0,5)} onChange={e => setEditingTask({...editingTask, end_time: `${e.target.value}:00`})} style={{ padding: '0.5rem', borderRadius: '6px' }} />
+                            <input
+                              type="time"
+                              className="premium-input"
+                              value={editingTask.scheduled_time?.slice(0,5)}
+                              onChange={e => setEditingTask({...editingTask, scheduled_time: `${e.target.value}:00`})}
+                              style={{ padding: '0.5rem' }}
+                            />
+                            <input
+                              type="time"
+                              className="premium-input"
+                              value={editingTask.end_time?.slice(0,5)}
+                              onChange={e => setEditingTask({...editingTask, end_time: `${e.target.value}:00`})}
+                              style={{ padding: '0.5rem' }}
+                            />
                           </div>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button onClick={() => updateTask(editingTask)} className="premium-button" style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Save</button>
-                            <button onClick={() => setEditingTask(null)} style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--card-border)', background: 'transparent', color: 'white', cursor: 'pointer' }}>Cancel</button>
+                            <button
+                              onClick={() => updateTask(editingTask)}
+                              className="premium-button"
+                              style={{ flex: 1, padding: '0.5rem', borderRadius: '8px' }}
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingTask(null)}
+                              className="premium-button-secondary"
+                              style={{ flex: 1, padding: '0.5rem', borderRadius: '8px' }}
+                            >
+                              Cancel
+                            </button>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <div>
-                            <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>{task.title}</p>
-                            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--primary)' }}>
-                              {formatTime(task.scheduled_time)} - {formatTime(task.end_time)}
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem', color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {task.title}
+                            </p>
+                            <p style={{ margin: '0.15rem 0 0 0', fontSize: '0.75rem', color: '#2563eb', fontWeight: 600 }}>
+                              {formatTime(task.scheduled_time)} &rarr; {formatTime(task.end_time)}
                             </p>
                           </div>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button onClick={() => setEditingTask(task)} style={{ background: 'transparent', border: 'none', color: 'var(--muted-foreground)', cursor: 'pointer' }}>Edit</button>
-                            <button onClick={() => deleteTask(task.id, goal.id)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer' }}>×</button>
+                          <div style={{ display: 'flex', gap: '0.35rem', flexShrink: 0 }}>
+                            <button
+                              onClick={() => setEditingTask(task)}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--muted-foreground)',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                padding: '0.3rem 0.5rem',
+                                borderRadius: '6px'
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteTask(task.id, goal.id)}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#ef4444',
+                                cursor: 'pointer',
+                                fontSize: '1rem',
+                                padding: '0.2rem 0.4rem',
+                                borderRadius: '6px'
+                              }}
+                            >
+                              ×
+                            </button>
                           </div>
                         </>
                       )}

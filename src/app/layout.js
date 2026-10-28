@@ -1,8 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navigation from "@/components/Navigation";
-import OfflineBanner from "@/components/OfflineBanner";
-import { Toaster } from "react-hot-toast";
+import AppShell from "@/components/AppShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,42 +13,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Discipline Tracker",
-  description: "Premium goal and task tracking",
+  title: "Discipline | High-Performance Execution System",
+  description: "Elite daily habit tracking, deep focus protocol, and structured knowledge management",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Discipline",
   },
 };
 
 export const viewport = {
-  themeColor: "#8b5cf6",
-  width: 'device-width',
+  themeColor: "#2563eb",
+  width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
-        <div className="mobile-container">
-          <header style={{ 
-            display: 'flex', flexDirection: 'column', gap: '1.25rem', alignItems: 'center', 
-            padding: '1rem 0 2rem 0', borderBottom: '1px solid var(--card-border)', marginBottom: '2rem'
-          }}>
-            <h1 className="text-gradient" style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.5px' }}>
-              Discipline
-            </h1>
-            <Navigation />
-          </header>
+        <AppShell>
           {children}
-        </div>
-        <Toaster position="top-center" toastOptions={{ style: { background: 'var(--card)', color: 'var(--foreground)', border: '1px solid var(--card-border)', fontWeight: 600 } }} />
-        <OfflineBanner />
+        </AppShell>
       </body>
     </html>
   );
