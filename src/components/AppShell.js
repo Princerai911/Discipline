@@ -24,16 +24,7 @@ export default function AppShell({ children }) {
     <>
       <div className="app-container">
         {/* Top Brand Header */}
-        <header style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1.25rem 0 2rem 0',
-          borderBottom: '1px solid #e2e8f0',
-          marginBottom: '2rem',
-          gap: '1rem',
-          flexWrap: 'wrap'
-        }}>
+        <header className="app-brand-header">
           {/* Logo & Subtitle */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
             <div style={{

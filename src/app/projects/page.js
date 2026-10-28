@@ -566,12 +566,12 @@ export default function ProjectsPage() {
         paddingBottom: '1.25rem'
       }}>
         {/* Left: Title & Project Switcher */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-            <span style={{ fontSize: '1.8rem' }}>🚀</span>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                <h2 className="text-gradient-accent" style={{ fontSize: '1.75rem', margin: 0, fontWeight: 900, letterSpacing: '-0.5px' }}>
+        <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '1.6rem' }}>🚀</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <h2 className="text-gradient-accent" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', margin: 0, fontWeight: 900, letterSpacing: '-0.5px' }}>
                   Projects & Kanban
                 </h2>
 
@@ -583,12 +583,13 @@ export default function ProjectsPage() {
                       background: '#eff6ff',
                       border: '1px solid #bfdbfe',
                       color: '#1d4ed8',
-                      padding: '0.35rem 0.75rem',
+                      padding: '0.35rem 0.65rem',
                       borderRadius: '8px',
-                      fontSize: '0.88rem',
+                      fontSize: '0.85rem',
                       fontWeight: 700,
                       outline: 'none',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      maxWidth: '180px'
                     }}
                   >
                     {projects.map(p => (
@@ -601,9 +602,9 @@ export default function ProjectsPage() {
                   onClick={() => setIsCreatingProject(true)}
                   className="premium-button"
                   title="Create a new Project Board"
-                  style={{ padding: '0.35rem 0.75rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800 }}
+                  style={{ padding: '0.35rem 0.65rem', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800, whiteSpace: 'nowrap' }}
                 >
-                  + New Project
+                  + New
                 </button>
 
                 {activeProject && (
@@ -614,16 +615,17 @@ export default function ProjectsPage() {
                       background: 'transparent',
                       border: '1px solid #e2e8f0',
                       color: '#94a3b8',
-                      padding: '0.35rem 0.65rem',
+                      padding: '0.35rem 0.55rem',
                       borderRadius: '8px',
                       fontSize: '0.75rem',
                       fontWeight: 700,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
                     }}
                     onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = '#fecaca'; }}
                     onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                   >
-                    🗑️ Delete Project
+                    🗑️ Delete
                   </button>
                 )}
               </div>
@@ -781,111 +783,117 @@ export default function ProjectsPage() {
             </span>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* Task Title Input */}
-            <div style={{ flex: 1, minWidth: '220px' }}>
-              <input
-                type="text"
-                value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
-                placeholder="New Task... (Type task name)"
-                className="premium-input"
-                style={{
-                  width: '100%',
-                  padding: '0.7rem 1rem',
-                  fontSize: '0.95rem',
-                  fontWeight: 600,
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '10px'
-                }}
-              />
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+            {/* Row 1: Task Title Input & Add Button */}
+            <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
+              <div style={{ flex: 1, minWidth: '180px' }}>
+                <input
+                  type="text"
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  placeholder="New Task... (Type task name)"
+                  className="premium-input"
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem 0.95rem',
+                    fontSize: '0.95rem',
+                    fontWeight: 600,
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px'
+                  }}
+                />
+              </div>
 
-            {/* Target Column Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700 }}>STAGE:</span>
-              <select
-                value={newTaskColumn}
-                onChange={(e) => setNewTaskColumn(e.target.value)}
+              <button
+                type="submit"
+                className="premium-button"
                 style={{
-                  padding: '0.65rem 0.85rem',
+                  padding: '0.65rem 1.25rem',
                   borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#0f172a',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  outline: 'none',
-                  cursor: 'pointer'
+                  fontSize: '0.88rem',
+                  fontWeight: 800,
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
                 }}
               >
-                <option value="todo">📋 To Do</option>
-                <option value="doing">⚡ Doing</option>
-                <option value="done">✅ Done</option>
-                <option value="trash">🗑️ Trash</option>
-              </select>
+                <span>+</span>
+                <span>Add Task</span>
+              </button>
             </div>
 
-            {/* Priority Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700 }}>PRIORITY:</span>
-              <select
-                value={newTaskPriority}
-                onChange={(e) => setNewTaskPriority(e.target.value)}
-                style={{
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#0f172a',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="high">🔴 High</option>
-                <option value="medium">🟡 Medium</option>
-                <option value="low">🟢 Low</option>
-              </select>
-            </div>
+            {/* Row 2: Stage, Priority, Tag in a neat aligned responsive row */}
+            <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Target Column Selector */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>STAGE:</span>
+                <select
+                  value={newTaskColumn}
+                  onChange={(e) => setNewTaskColumn(e.target.value)}
+                  style={{
+                    padding: '0.45rem 0.65rem',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="todo">📋 To Do</option>
+                  <option value="doing">⚡ Doing</option>
+                  <option value="done">✅ Done</option>
+                  <option value="trash">🗑️ Trash</option>
+                </select>
+              </div>
 
-            {/* Tag Input */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700 }}>TAG:</span>
-              <input
-                type="text"
-                value={newTaskTag}
-                onChange={(e) => setNewTaskTag(e.target.value)}
-                placeholder="Tag (e.g. Dev, Design)"
-                style={{
-                  width: '120px',
-                  padding: '0.65rem 0.75rem',
-                  borderRadius: '10px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  outline: 'none'
-                }}
-              />
-            </div>
+              {/* Priority Selector */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>PRIORITY:</span>
+                <select
+                  value={newTaskPriority}
+                  onChange={(e) => setNewTaskPriority(e.target.value)}
+                  style={{
+                    padding: '0.45rem 0.65rem',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="high">🔴 High</option>
+                  <option value="medium">🟡 Medium</option>
+                  <option value="low">🟢 Low</option>
+                </select>
+              </div>
 
-            {/* Add Task Button */}
-            <button
-              type="submit"
-              className="premium-button"
-              style={{
-                padding: '0.7rem 1.4rem',
-                borderRadius: '10px',
-                fontSize: '0.88rem',
-                fontWeight: 800,
-                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)'
-              }}
-            >
-              <span>+</span>
-              <span>Add New Task</span>
-            </button>
+              {/* Tag Input */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700 }}>TAG:</span>
+                <input
+                  type="text"
+                  value={newTaskTag}
+                  onChange={(e) => setNewTaskTag(e.target.value)}
+                  placeholder="e.g. Dev"
+                  style={{
+                    width: '100px',
+                    padding: '0.45rem 0.65rem',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                    outline: 'none'
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </form>
       )}
@@ -957,23 +965,45 @@ export default function ProjectsPage() {
             ))}
           </div>
 
-          {/* Mobile Column View Switcher */}
-          <div className="mobile-only" style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', width: '100%', paddingBottom: '0.25rem' }}>
+          {/* Mobile Column View Switcher (Scrollbar-Free Clean Pills) */}
+          <div className="mobile-only no-scrollbar" style={{
+            display: 'flex',
+            gap: '0.45rem',
+            overflowX: 'auto',
+            width: '100%',
+            padding: '0.25rem 0.15rem 0.5rem 0.15rem',
+            WebkitOverflowScrolling: 'touch'
+          }}>
             <button
               onClick={() => setMobileActiveColumn('all')}
               style={{
-                padding: '0.4rem 0.75rem',
-                borderRadius: '8px',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '999px',
                 border: mobileActiveColumn === 'all' ? '1px solid #bfdbfe' : '1px solid #e2e8f0',
-                background: mobileActiveColumn === 'all' ? '#eff6ff' : '#ffffff',
-                color: mobileActiveColumn === 'all' ? '#2563eb' : '#64748b',
-                fontSize: '0.75rem',
+                background: mobileActiveColumn === 'all' ? '#2563eb' : '#ffffff',
+                color: mobileActiveColumn === 'all' ? '#ffffff' : '#64748b',
+                fontSize: '0.78rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: mobileActiveColumn === 'all' ? '0 2px 8px rgba(37, 99, 235, 0.25)' : 'none',
+                touchAction: 'manipulation'
               }}
             >
-              All Columns ({stats.total + stats.trashCount})
+              <span>📊 All</span>
+              <span style={{
+                background: mobileActiveColumn === 'all' ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                color: mobileActiveColumn === 'all' ? '#ffffff' : '#475569',
+                padding: '0.1rem 0.45rem',
+                borderRadius: '999px',
+                fontSize: '0.7rem',
+                fontWeight: 800
+              }}>
+                {stats.total + stats.trashCount}
+              </span>
             </button>
             {COLUMNS.map(col => {
               const count = projectTasks.filter(t => t.column === col.id).length;
@@ -983,18 +1013,33 @@ export default function ProjectsPage() {
                   key={col.id}
                   onClick={() => setMobileActiveColumn(col.id)}
                   style={{
-                    padding: '0.4rem 0.75rem',
-                    borderRadius: '8px',
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '999px',
                     border: isColActive ? `1px solid ${col.border}` : '1px solid #e2e8f0',
-                    background: isColActive ? col.bg : '#ffffff',
-                    color: isColActive ? col.color : '#64748b',
-                    fontSize: '0.75rem',
+                    background: isColActive ? col.color : '#ffffff',
+                    color: isColActive ? '#ffffff' : '#64748b',
+                    fontSize: '0.78rem',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    boxShadow: isColActive ? `0 2px 8px ${col.border}` : 'none',
+                    touchAction: 'manipulation'
                   }}
                 >
-                  {col.icon} {col.label} ({count})
+                  <span>{col.icon} {col.label}</span>
+                  <span style={{
+                    background: isColActive ? 'rgba(255,255,255,0.25)' : col.bg,
+                    color: isColActive ? '#ffffff' : col.color,
+                    padding: '0.1rem 0.45rem',
+                    borderRadius: '999px',
+                    fontSize: '0.7rem',
+                    fontWeight: 800
+                  }}>
+                    {count}
+                  </span>
                 </button>
               );
             })}
@@ -1021,14 +1066,13 @@ export default function ProjectsPage() {
                 onDragOver={(e) => handleDragOver(e, col.id)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, col.id)}
-                className="glass-panel"
+                className="glass-panel kanban-column"
                 style={{
                   borderRadius: '16px',
                   background: isDragOver ? '#eff6ff' : '#f8fafc',
                   border: isDragOver ? '2px dashed #2563eb' : '1px solid #e2e8f0',
                   display: 'flex',
                   flexDirection: 'column',
-                  minHeight: '560px',
                   transition: 'all 0.2s ease',
                   boxShadow: isDragOver ? '0 8px 24px rgba(37, 99, 235, 0.12)' : '0 2px 8px rgba(15, 23, 42, 0.03)',
                   overflow: 'hidden'
@@ -1338,7 +1382,7 @@ export default function ProjectsPage() {
                             paddingTop: '0.45rem',
                             marginTop: '0.2rem'
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
                               {col.id === 'todo' && (
                                 <button
                                   onClick={() => handleMoveTask(task.id, 'doing')}
@@ -1348,10 +1392,14 @@ export default function ProjectsPage() {
                                     border: '1px solid #bfdbfe',
                                     color: '#2563eb',
                                     borderRadius: '6px',
-                                    padding: '2px 7px',
-                                    fontSize: '0.72rem',
+                                    padding: '0.35rem 0.65rem',
+                                    fontSize: '0.75rem',
                                     fontWeight: 700,
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    minHeight: '30px',
+                                    touchAction: 'manipulation'
                                   }}
                                 >
                                   Doing →
@@ -1368,10 +1416,14 @@ export default function ProjectsPage() {
                                       border: '1px solid #fed7aa',
                                       color: '#ea580c',
                                       borderRadius: '6px',
-                                      padding: '2px 6px',
-                                      fontSize: '0.72rem',
+                                      padding: '0.35rem 0.55rem',
+                                      fontSize: '0.75rem',
                                       fontWeight: 700,
-                                      cursor: 'pointer'
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      minHeight: '30px',
+                                      touchAction: 'manipulation'
                                     }}
                                   >
                                     ← To Do
@@ -1384,10 +1436,14 @@ export default function ProjectsPage() {
                                       border: '1px solid #a7f3d0',
                                       color: '#059669',
                                       borderRadius: '6px',
-                                      padding: '2px 7px',
-                                      fontSize: '0.72rem',
+                                      padding: '0.35rem 0.65rem',
+                                      fontSize: '0.75rem',
                                       fontWeight: 700,
-                                      cursor: 'pointer'
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      minHeight: '30px',
+                                      touchAction: 'manipulation'
                                     }}
                                   >
                                     Done →
@@ -1404,10 +1460,14 @@ export default function ProjectsPage() {
                                     border: '1px solid #bfdbfe',
                                     color: '#2563eb',
                                     borderRadius: '6px',
-                                    padding: '2px 7px',
-                                    fontSize: '0.72rem',
+                                    padding: '0.35rem 0.65rem',
+                                    fontSize: '0.75rem',
                                     fontWeight: 700,
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    minHeight: '30px',
+                                    touchAction: 'manipulation'
                                   }}
                                 >
                                   ← Doing
@@ -1423,10 +1483,14 @@ export default function ProjectsPage() {
                                     border: '1px solid #bfdbfe',
                                     color: '#2563eb',
                                     borderRadius: '6px',
-                                    padding: '2px 7px',
-                                    fontSize: '0.72rem',
+                                    padding: '0.35rem 0.65rem',
+                                    fontSize: '0.75rem',
                                     fontWeight: 700,
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    minHeight: '30px',
+                                    touchAction: 'manipulation'
                                   }}
                                 >
                                   ↩ Restore
@@ -1443,10 +1507,14 @@ export default function ProjectsPage() {
                                   border: '1px solid #fecaca',
                                   color: '#dc2626',
                                   borderRadius: '6px',
-                                  padding: '2px 6px',
-                                  fontSize: '0.72rem',
+                                  padding: '0.35rem 0.65rem',
+                                  fontSize: '0.75rem',
                                   fontWeight: 800,
-                                  cursor: 'pointer'
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  minHeight: '30px',
+                                  touchAction: 'manipulation'
                                 }}
                               >
                                 ✕ Delete
@@ -1456,16 +1524,22 @@ export default function ProjectsPage() {
                                 onClick={() => handleMoveTask(task.id, 'trash')}
                                 title="Move task to Trash"
                                 style={{
-                                  background: 'transparent',
-                                  border: 'none',
+                                  background: '#f8fafc',
+                                  border: '1px solid #e2e8f0',
                                   color: '#94a3b8',
                                   cursor: 'pointer',
-                                  padding: '2px 4px',
-                                  fontSize: '0.82rem',
-                                  borderRadius: '4px'
+                                  padding: '0.35rem 0.55rem',
+                                  fontSize: '0.85rem',
+                                  borderRadius: '6px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  minWidth: '32px',
+                                  minHeight: '30px',
+                                  touchAction: 'manipulation'
                                 }}
-                                onMouseEnter={e => e.currentTarget.style.color = '#dc2626'}
-                                onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}
+                                onMouseEnter={e => { e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fecaca'; e.currentTarget.style.background = '#fef2f2'; }}
+                                onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc'; }}
                               >
                                 🗑️
                               </button>

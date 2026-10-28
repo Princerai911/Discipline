@@ -121,22 +121,23 @@ export default function Navigation() {
       {/* MOBILE BOTTOM DOCK (Visible on Phones <= 768px) */}
       <nav className="mobile-only" style={{
         position: 'fixed',
-        bottom: '16px',
-        left: '16px',
-        right: '16px',
-        maxWidth: '420px',
+        bottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
+        left: '10px',
+        right: '10px',
+        maxWidth: '430px',
         margin: '0 auto',
         zIndex: 9990,
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: 'rgba(255, 255, 255, 0.96)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         border: '1px solid #e2e8f0',
-        borderRadius: '24px',
-        boxShadow: '0 12px 36px rgba(15, 23, 42, 0.12)',
-        padding: '0.5rem 0.75rem',
+        borderRadius: '20px',
+        boxShadow: '0 12px 36px rgba(15, 23, 42, 0.14)',
+        padding: '0.35rem 0.35rem',
         display: 'flex',
         justifyContent: 'space-around',
-        alignItems: 'center'
+        alignItems: 'center',
+        gap: '2px'
       }}>
         {links.map((link) => {
           const isActive = pathname === link.href;
@@ -149,16 +150,18 @@ export default function Navigation() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.2rem',
-                padding: '0.45rem 0.75rem',
-                borderRadius: '16px',
+                gap: '0.15rem',
+                padding: '0.35rem 0.2rem',
+                borderRadius: '12px',
                 color: isActive ? '#2563eb' : '#64748b',
                 background: isActive ? '#eff6ff' : 'transparent',
                 border: isActive ? '1px solid #bfdbfe' : '1px solid transparent',
                 textDecoration: 'none',
                 flex: 1,
+                minWidth: 0,
                 transition: 'all 0.15s ease',
-                position: 'relative'
+                position: 'relative',
+                touchAction: 'manipulation'
               }}
             >
               <span style={{ 
@@ -171,15 +174,19 @@ export default function Navigation() {
                 {link.icon}
               </span>
               <span style={{ 
-                fontSize: '0.72rem', 
-                fontWeight: isActive ? 800 : 600
+                fontSize: '0.68rem', 
+                fontWeight: isActive ? 800 : 600,
+                letterSpacing: '-0.2px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}>
                 {link.label}
               </span>
               {isActive && (
                 <span style={{
                   position: 'absolute',
-                  top: '4px',
+                  top: '3px',
                   width: '4px',
                   height: '4px',
                   borderRadius: '999px',
